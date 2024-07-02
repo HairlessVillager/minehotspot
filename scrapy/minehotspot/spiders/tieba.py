@@ -5,26 +5,28 @@ import time
 
 import scrapy
 
-from minehotspot.items import TiebaComment, TiebaTotalComment
+from ..items import TiebaTotalComment,TiebaComment
+
 
 
 class TiebaPostSpider(scrapy.Spider):
     name = "tiebapost"
     allowed_domains = ["tieba.baidu.com"]
 
-    def __init__(self, pid: int, cookies_text: str = None, *args, **kwargs):
+    def __init__(self, pid: str, cookies_text: str = None):
         """
         pid:
             no: /p/8985907273
             yes: 8985907273
         """
-        super(TiebaPostSpider, self).__init__(*args, **kwargs)
         self.logger.debug(f"{pid=}, {cookies_text=}")
         self.pid = pid
 
         # TODO: insecure data, remove this
+
+        #  处理cookies以字典的形式处理
         cookies_text = """
-        XFI=343e7c10-3382-11ef-9b40-a9cc5fd15163; XFCS=3E9F076C2751C30DC50332AE8944104E7F16A02EBF81E1BD057431FF387D5DC7; XFT=dFXK3hrcb6NWmHLESz+s8J3wd+olz+jXY1zCcLFDPXY=; BIDUPSID=942C8B99F0CBA1B803D036BCDF45981A; PSTM=1692155596; BAIDUID=942C8B99F0CBA1B8DF41FAAA8136952E:SL=0:NR=10:FG=1; MCITY=-218%3A; IS_NEW_USER=4e2fab2e31d833a251600277; TIEBAUID=5c40c0e62d2efb5f13d68ffd; BDUSS=FqcnRkVHlENThwb2oyQXAzWHY2dlVpRndDenpDWDFTYkVtUGlLUUVCRFY1M3htSVFBQUFBJCQAAAAAAAAAAAEAAABJI-~ntOXD8VZpbGxhZ2VyMgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANVaVWbVWlVmN3; STOKEN=fbf80c9c315856117aa2d4e1e58b9b43d866a7e8a0d8ef16b66cbefbf7411a2b; BAIDU_WISE_UID=wapp_1717132013271_460; Hm_lvt_98b9d8c2fd6608d564bf2ac2ae642948=1715904525,1716034140,1716172038,1717132013; __bid_n=1903dd28f588208f379f79; H_WISE_SIDS=60334_60376; BAIDUID_BFESS=942C8B99F0CBA1B8DF41FAAA8136952E:SL=0:NR=10:FG=1; BDUSS_BFESS=FqcnRkVHlENThwb2oyQXAzWHY2dlVpRndDenpDWDFTYkVtUGlLUUVCRFY1M3htSVFBQUFBJCQAAAAAAAAAAAEAAABJI-~ntOXD8VZpbGxhZ2VyMgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANVaVWbVWlVmN3; ZFY=Uqpg2LECCGjr16ZkdMVx41TwzMuNYGINbmInDPFwhrI:C; H_PS_PSSID=60334_60376; BDORZ=B490B5EBF6F3CD402E515D22BCDA1598; arialoadData=false; delPer=0; PSINO=6; Hm_lvt_292b2e1608b0823c1cb6beef7243ef34=1718955042,1719239269,1719330276,1719381882; USER_JUMP=-1; 3891209033_FRSVideoUploadTip=1; video_bubble3891209033=1; XFI=faff0730-3381-11ef-bd5f-3798017f9a75; st_key_id=17; XFCS=2E732E0EC7EEDEFB7BB3E937D65EEB3334434D417A88E64E296FB01E7559D0B8; XFT=zSXaQLLQ0VIRLPrIiv/XCgqQX7IsvAhoh5EMF9ikAbg=; wise_device=0; Hm_lpvt_292b2e1608b0823c1cb6beef7243ef34=1719381978; BA_HECTOR=2hagakala4258l24800084ag3ikuss1j7nbur1u; ab_sr=1.0.1_YTRlNjliODhjNTdlMzhhZWEwZTI5ODBjMGRiOTZmYjk4MmU0ZGI4Mzk4ZTFlNjAzYTU2ZDllMDk2MDljYWMwZDllYWVkOTkzNTM2ZDQwYjA5ZWYyMzdlMTI4ZjhhYjMxODEzMWQzNGEyMzMxYzExYzhjMTM4OGRhYmRkYzlkMjA2M2RiMmViMjEzZTgyMTczYzM5ODk5Y2FkNDFjNjNlNGEyY2RhZDdiZWRlMmFlOGUwOGRkYzc5NzMwNWU5NjJl; st_data=37f026a2b3c10defe4bf95deab3bbfcb865d92a8e2dc556f02a01c8cfd430ce87c0ab1d5883c11b5d0c563234e13b01de191d4196ea5f581d4399c849419c06ea5c66a2fea21e7114f3550e4a94e8eb2bce4dee2d16137a4527a10278a48b4babdfc042517022ec80fdb67c22202f2f6bd66307cee55e500313a188ec075fb407c301dd746df97ff42bbe1b379236f86; st_sign=f7a474c8; RT="z=1&dm=baidu.com&si=2deca234-e1e6-4237-b6fc-8ac4f3b2380a&ss=lxvfku8c&sl=k&tt=8md&bcn=https%3A%2F%2Ffclog.baidu.com%2Flog%2Fweirwood%3Ftype%3Dperf&ld=5yj3&ul=7nvn"
+            BIDUPSID=CDA1F3C01124B13535263674E29C9852; PSTM=1699769466; BAIDUID=993F177B1AC04E12B8B89A7A8FF54691:FG=1; H_WISE_SIDS=39996_40041; H_WISE_SIDS_BFESS=39996_40041; BAIDUID_BFESS=993F177B1AC04E12B8B89A7A8FF54691:FG=1; __bid_n=18e84dea3d64384ab8121f; BAIDU_WISE_UID=wapp_1716306674304_754; BDUSS=F5emp-T3pYb2RrbGdCNE5wZ0luVld5dGZTblMySTFHVn42Sm54b296UVJzSUJtSVFBQUFBJCQAAAAAAQAAAAEAAAAADjRry9XDzm1hcnJpYWdlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABEjWWYRI1lmdD; BDUSS_BFESS=F5emp-T3pYb2RrbGdCNE5wZ0luVld5dGZTblMySTFHVn42Sm54b296UVJzSUJtSVFBQUFBJCQAAAAAAQAAAAEAAAAADjRry9XDzm1hcnJpYWdlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABEjWWYRI1lmdD; STOKEN=9b34ff73712e36ad26604dd3351b016ab7e7b7872a4bc1fe9c49bb90d28daaff; ZFY=Nqggs0oYBFbs7lwmHXMrhr8sDBquyaDBSKKinlvwh4Q:C; arialoadData=false; Hm_lvt_98b9d8c2fd6608d564bf2ac2ae642948=1719797472; BDRCVFR[-BxzrOzUsTb]=mk3SLVN4HKm; H_PS_PSSID=60340; USER_JUMP=-1; Hm_lvt_292b2e1608b0823c1cb6beef7243ef34=1719625067,1719794510,1719796412,1719802981; 6093540864_FRSVideoUploadTip=1; video_bubble6093540864=1; st_key_id=17; XFT=JCMmpM7sgAn+Ehr6Y0qZanakus0enEl18LXweFxp4rA=; Hm_lpvt_292b2e1608b0823c1cb6beef7243ef34=1719804250; XFI=61f296c0-3759-11ef-9ad1-ff11484a5e6b; BA_HECTOR=2g8l202ka5800ga401208k0g01cti11j848ar1v; st_data=9a7aa8718c2a6fcccbfef9c7fd901886a78884d92f9f54eb3943f9613e1c93266cf61fa6e1c6c0cd16d8dcee8ad03e42484020b4925be310ebb769bcce99c2e28df2cf1fde08400c96f8a5fbaa9504ed1db79c889be1df07364392bc24850d0a21d330ed9265546388cd359ca5eb84f0ed19edcf49dcc111176a5ed0f0e7d14d5be023eb0a0e2b87ee7194bf24275f0dc667a3b999e1e0c45ae38d82daeda505; st_sign=5c3f6d5c; XFCS=19069C65BA5C008AE0D11764D35A446B44DDBAAF52DEF45C6A7854BF8B173CED; ab_sr=1.0.1_YWU4Yjg3NTI3MTQxNDBiZGQzMzljMTEyOWQxZDE4ZDEyZmRiMWE2YTRiNmFiZmUwYjg3ZWY0OThkOWVkNGUyMjM3Y2I5MGExNDEyYThmODhhNDdiMjFmNjk3ZGM2NTkzNTQ5ZTA1OThlOGVjZGZmYTQ0YWUxMGEzMjc5NDgxMjI2OTAzNDExMDk0N2I2MDUyODJhMmU3ZTQxY2FjMWJmN2NhNjM0OTBlZTlhZTBkODIxMzYxMTJmZTY4NGVmYTZiOWFmMjgxNTU0YzgxMjMyNmQ2NGNiNzFlMjhlNTYzMmQ=; RT="z=1&dm=baidu.com&si=d7cf139a-b518-4d9a-bbd7-13f780cdccfa&ss=ly28omhk&sl=2l&tt=3aq3&bcn=https%3A%2F%2Ffclog.baidu.com%2Flog%2Fweirwood%3Ftype%3Dperf&ld=7g0h5&nu=kwb28ey&cl=5yjmh&ul=7gc7n"
         """
         self.cookies = {}
         for item in cookies_text.strip().split(";"):
@@ -35,8 +37,10 @@ class TiebaPostSpider(scrapy.Spider):
         self.logger.debug(f"{self.cookies=}")
 
     def get_timestamp(self) -> int:
+        # 获取时间戳
         return int(time.time())
 
+    # 开始爬虫的函数
     def start_requests(self):
         item = TiebaComment()
         yield scrapy.Request(
@@ -46,6 +50,7 @@ class TiebaPostSpider(scrapy.Spider):
             cookies=self.cookies,
         )
 
+    # 获取爬虫urls
     def parse_list(self, response):
         except_hrefs = {
             # "/p/8251345629",  # 【2023版吧务工作楼】警告//咨询//举报//建议处
@@ -62,27 +67,37 @@ class TiebaPostSpider(scrapy.Spider):
                 cb_kwargs=dict(item=item),
             )
 
+    #解析页面
     def parse_detail_pn(self, response, item: TiebaComment, pn=1):
         self.logger.info(f"parse_detail_pn(): {item=}, {pn=}")
         pages = response.xpath(r"//li[@class='l_reply_num']").re(r"共<span.*>(?P<pages>\d+)</span>页")[0]
         pages = int(pages)
         self.logger.info(f"{pages=}")
         if "pid" not in item:
+            #从url中捕捉pid
             item["pid"] = re.match(r"https://tieba.baidu.com/p/(?P<post_id>\d+)", response.url).group("post_id")
         if "title" not in item:
+            #从response中获取title
             item["title"] = response.xpath(r"//h3/text()").get().strip()
+        #获取帖子文本 //*[@id="post_content_150141271183"]
         texts = response.xpath(r'//div[@class="d_post_content j_d_post_content "]').re(r"<div.*> +(?P<c>.+)</div>")
+        #获取帖子回复时间
         times = response.xpath(r'//div[@class="post-tail-wrap"]').re(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}")
-        for text, time_ in zip(texts, times):
-            copy = item.copy()
-            copy["text"] = text
-            copy["time"] = int(time.mktime(time.strptime(time_, "%Y-%m-%d %H:%M")))
-            yield copy
+
+        # 似乎这部分代码是多余的
+
+        # for text, time_ in zip(texts, times):
+        #     copy = item.copy()
+        #     copy["text"] = text
+        #     copy["time"] = int(time.mktime(time.strptime(time_, "%Y-%m-%d %H:%M")))
+        #     print(copy)
+        #     yield copy
         yield response.follow(
             url=f"https://tieba.baidu.com/p/totalComment?t={self.get_timestamp()}&tid={item['pid']}&pn={pn}&see_lz=0",
             callback=self.parse_totalComment,
             cb_kwargs=dict(item=item),
         )
+
         if pn+1 <= pages:
             pn += 1
             yield response.follow(
@@ -93,21 +108,25 @@ class TiebaPostSpider(scrapy.Spider):
             )
 
     def parse_totalComment(self, response, item: TiebaComment):
+        print("执行了parse_totalComment")
         j = json.loads(response.text)
         comment_list = j["data"]["comment_list"]
         if comment_list == []:
             return
         content_times = [
-            (comment["content"], comment["now_time"])
+            (comment["content"], comment["now_time"],comment["user_id"],comment["show_nickname"])
             for id_ in comment_list.values()
             for comment in id_["comment_info"]
         ]
         self.logger.debug(f"{len(content_times)=}")
-        for text, time_ in content_times:
+        for text, time_,user_id,show_nickname in content_times:
             copy = item.copy()
             copy["text"] = text
             copy["time"] = time_
+            copy["uid"]=f"uid:{user_id}  昵称:{show_nickname}"
             yield copy
+
+        ## 猜测二级评论10条一页
         for key in comment_list:
             pages = ceil(comment_list[key]["comment_num"] / 10)
             for pn in range(2, pages+1):
@@ -123,32 +142,50 @@ class TiebaPostSpider(scrapy.Spider):
                 )
 
     def parse_comment(self, response, item):
+        #print("执行了parse_comment")
         contents = response.xpath(r"//span[@class='lzl_content_main']").re(r"<span.*?> +(?P<content>.+?) +</span>")
         times = response.xpath(r"//span[@class='lzl_time']/text()").getall()
-        for text, time_ in zip(contents, times):
+        user_ids=[]
+        show_nicknames=[]
+        #print("contents长度:"+str(len(contents))+"  times长度"+str(len(times))) ## 调试语句
+        li_elements = response.xpath(r"//li[contains(@class,'lzl_single_post j_lzl_s_p')]")
+        #print("li_elements长度:"+str(len(li_elements)))
+        for li in li_elements:
+            # 提取data-field属性的值
+            data_field_str = li.attrib['data-field']
+            # 将JSON格式的字符串转换为Python字典
+            data_field_dict = json.loads(data_field_str)
+            # 提取spid和showname
+            spid = data_field_dict.get('spid')
+            showname = data_field_dict.get('showname')
+            user_ids.append(spid)
+            show_nicknames.append(showname)
+
+        for text, time_, user_id, show_nickname in zip(contents, times, user_ids, show_nicknames):
             copy = item.copy()
             copy["text"] = text
             copy["time"] = int(time.mktime(time.strptime(time_, "%Y-%m-%d %H:%M")))
-            yield copy
+            copy["uid"] = f"uid:{user_id}  昵称:{show_nickname}"
+            print(copy)
+            #yield copy
 
 
 class TiebaListSpider(scrapy.Spider):
     name = "tiebalist"
     allowed_domains = ["tieba.baidu.com"]
 
-    def __init__(self, start: str, end: str, cookies_text: str = None, *args, **kwargs):
+    def __init__(self, start: str, end: str, cookies_text: str = None):
         """
         start, end:
             - (2000, 5000)
         """
-        super(TiebaListSpider, self).__init__(*args, **kwargs)
         self.logger.debug(f"{start=}, {end=}, {cookies_text=}")
         self.start = int(start)
         self.end = int(end)
 
         # TODO: insecure data, remove this
         cookies_text = """
-        XFI=343e7c10-3382-11ef-9b40-a9cc5fd15163; XFCS=3E9F076C2751C30DC50332AE8944104E7F16A02EBF81E1BD057431FF387D5DC7; XFT=dFXK3hrcb6NWmHLESz+s8J3wd+olz+jXY1zCcLFDPXY=; BIDUPSID=942C8B99F0CBA1B803D036BCDF45981A; PSTM=1692155596; BAIDUID=942C8B99F0CBA1B8DF41FAAA8136952E:SL=0:NR=10:FG=1; MCITY=-218%3A; IS_NEW_USER=4e2fab2e31d833a251600277; TIEBAUID=5c40c0e62d2efb5f13d68ffd; BDUSS=FqcnRkVHlENThwb2oyQXAzWHY2dlVpRndDenpDWDFTYkVtUGlLUUVCRFY1M3htSVFBQUFBJCQAAAAAAAAAAAEAAABJI-~ntOXD8VZpbGxhZ2VyMgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANVaVWbVWlVmN3; STOKEN=fbf80c9c315856117aa2d4e1e58b9b43d866a7e8a0d8ef16b66cbefbf7411a2b; BAIDU_WISE_UID=wapp_1717132013271_460; Hm_lvt_98b9d8c2fd6608d564bf2ac2ae642948=1715904525,1716034140,1716172038,1717132013; __bid_n=1903dd28f588208f379f79; H_WISE_SIDS=60334_60376; BAIDUID_BFESS=942C8B99F0CBA1B8DF41FAAA8136952E:SL=0:NR=10:FG=1; BDUSS_BFESS=FqcnRkVHlENThwb2oyQXAzWHY2dlVpRndDenpDWDFTYkVtUGlLUUVCRFY1M3htSVFBQUFBJCQAAAAAAAAAAAEAAABJI-~ntOXD8VZpbGxhZ2VyMgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANVaVWbVWlVmN3; ZFY=Uqpg2LECCGjr16ZkdMVx41TwzMuNYGINbmInDPFwhrI:C; H_PS_PSSID=60334_60376; BDORZ=B490B5EBF6F3CD402E515D22BCDA1598; arialoadData=false; delPer=0; PSINO=6; Hm_lvt_292b2e1608b0823c1cb6beef7243ef34=1718955042,1719239269,1719330276,1719381882; USER_JUMP=-1; 3891209033_FRSVideoUploadTip=1; video_bubble3891209033=1; XFI=faff0730-3381-11ef-bd5f-3798017f9a75; st_key_id=17; XFCS=2E732E0EC7EEDEFB7BB3E937D65EEB3334434D417A88E64E296FB01E7559D0B8; XFT=zSXaQLLQ0VIRLPrIiv/XCgqQX7IsvAhoh5EMF9ikAbg=; wise_device=0; Hm_lpvt_292b2e1608b0823c1cb6beef7243ef34=1719381978; BA_HECTOR=2hagakala4258l24800084ag3ikuss1j7nbur1u; ab_sr=1.0.1_YTRlNjliODhjNTdlMzhhZWEwZTI5ODBjMGRiOTZmYjk4MmU0ZGI4Mzk4ZTFlNjAzYTU2ZDllMDk2MDljYWMwZDllYWVkOTkzNTM2ZDQwYjA5ZWYyMzdlMTI4ZjhhYjMxODEzMWQzNGEyMzMxYzExYzhjMTM4OGRhYmRkYzlkMjA2M2RiMmViMjEzZTgyMTczYzM5ODk5Y2FkNDFjNjNlNGEyY2RhZDdiZWRlMmFlOGUwOGRkYzc5NzMwNWU5NjJl; st_data=37f026a2b3c10defe4bf95deab3bbfcb865d92a8e2dc556f02a01c8cfd430ce87c0ab1d5883c11b5d0c563234e13b01de191d4196ea5f581d4399c849419c06ea5c66a2fea21e7114f3550e4a94e8eb2bce4dee2d16137a4527a10278a48b4babdfc042517022ec80fdb67c22202f2f6bd66307cee55e500313a188ec075fb407c301dd746df97ff42bbe1b379236f86; st_sign=f7a474c8; RT="z=1&dm=baidu.com&si=2deca234-e1e6-4237-b6fc-8ac4f3b2380a&ss=lxvfku8c&sl=k&tt=8md&bcn=https%3A%2F%2Ffclog.baidu.com%2Flog%2Fweirwood%3Ftype%3Dperf&ld=5yj3&ul=7nvn"
+        BIDUPSID=CDA1F3C01124B13535263674E29C9852; PSTM=1699769466; BAIDUID=993F177B1AC04E12B8B89A7A8FF54691:FG=1; H_WISE_SIDS=39996_40041; H_WISE_SIDS_BFESS=39996_40041; BAIDUID_BFESS=993F177B1AC04E12B8B89A7A8FF54691:FG=1; __bid_n=18e84dea3d64384ab8121f; BAIDU_WISE_UID=wapp_1716306674304_754; BDUSS=F5emp-T3pYb2RrbGdCNE5wZ0luVld5dGZTblMySTFHVn42Sm54b296UVJzSUJtSVFBQUFBJCQAAAAAAQAAAAEAAAAADjRry9XDzm1hcnJpYWdlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABEjWWYRI1lmdD; BDUSS_BFESS=F5emp-T3pYb2RrbGdCNE5wZ0luVld5dGZTblMySTFHVn42Sm54b296UVJzSUJtSVFBQUFBJCQAAAAAAQAAAAEAAAAADjRry9XDzm1hcnJpYWdlAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABEjWWYRI1lmdD; STOKEN=9b34ff73712e36ad26604dd3351b016ab7e7b7872a4bc1fe9c49bb90d28daaff; ZFY=Nqggs0oYBFbs7lwmHXMrhr8sDBquyaDBSKKinlvwh4Q:C; arialoadData=false; Hm_lvt_98b9d8c2fd6608d564bf2ac2ae642948=1719797472; BDRCVFR[-BxzrOzUsTb]=mk3SLVN4HKm; H_PS_PSSID=60340; USER_JUMP=-1; Hm_lvt_292b2e1608b0823c1cb6beef7243ef34=1719625067,1719794510,1719796412,1719802981; 6093540864_FRSVideoUploadTip=1; video_bubble6093540864=1; st_key_id=17; XFT=JCMmpM7sgAn+Ehr6Y0qZanakus0enEl18LXweFxp4rA=; Hm_lpvt_292b2e1608b0823c1cb6beef7243ef34=1719804250; XFI=61f296c0-3759-11ef-9ad1-ff11484a5e6b; BA_HECTOR=2g8l202ka5800ga401208k0g01cti11j848ar1v; st_data=9a7aa8718c2a6fcccbfef9c7fd901886a78884d92f9f54eb3943f9613e1c93266cf61fa6e1c6c0cd16d8dcee8ad03e42484020b4925be310ebb769bcce99c2e28df2cf1fde08400c96f8a5fbaa9504ed1db79c889be1df07364392bc24850d0a21d330ed9265546388cd359ca5eb84f0ed19edcf49dcc111176a5ed0f0e7d14d5be023eb0a0e2b87ee7194bf24275f0dc667a3b999e1e0c45ae38d82daeda505; st_sign=5c3f6d5c; XFCS=19069C65BA5C008AE0D11764D35A446B44DDBAAF52DEF45C6A7854BF8B173CED; ab_sr=1.0.1_YWU4Yjg3NTI3MTQxNDBiZGQzMzljMTEyOWQxZDE4ZDEyZmRiMWE2YTRiNmFiZmUwYjg3ZWY0OThkOWVkNGUyMjM3Y2I5MGExNDEyYThmODhhNDdiMjFmNjk3ZGM2NTkzNTQ5ZTA1OThlOGVjZGZmYTQ0YWUxMGEzMjc5NDgxMjI2OTAzNDExMDk0N2I2MDUyODJhMmU3ZTQxY2FjMWJmN2NhNjM0OTBlZTlhZTBkODIxMzYxMTJmZTY4NGVmYTZiOWFmMjgxNTU0YzgxMjMyNmQ2NGNiNzFlMjhlNTYzMmQ=; RT="z=1&dm=baidu.com&si=d7cf139a-b518-4d9a-bbd7-13f780cdccfa&ss=ly28omhk&sl=2l&tt=3aq3&bcn=https%3A%2F%2Ffclog.baidu.com%2Flog%2Fweirwood%3Ftype%3Dperf&ld=7g0h5&nu=kwb28ey&cl=5yjmh&ul=7gc7n"
         """
         self.cookies = {}
         for item in cookies_text.strip().split(";"):
@@ -173,11 +210,28 @@ class TiebaListSpider(scrapy.Spider):
             )
 
     def parse_list(self, response):
-        hrefs = response.xpath(r"//a[@rel='noopener']/self::*[starts-with(@href, '/p')]/@href").getall()
-        pids = [_[3:] for _ in hrefs]
-        titles = ["title"] * len(hrefs)
-        totals = [0 + 1] * len(hrefs)  # TODO: test data, remove this
-        self.logger.debug(f"{hrefs=}")
+        li_elements = response.xpath(r"//li[contains(@class,'j_thread_list clearfix thread_item_box')]")
+        print("数量："+str(len(li_elements)))
+        pids=[]
+        titles = []
+        totals = []
+        for li in li_elements:
+            total = li.xpath(r'.//span[@class="threadlist_rep_num center_text"]/text()').get()
+
+            title = li.xpath(r'.//a[@class="j_th_tit "]/text()').get()
+            print(f"空   {title}")
+            href = li.xpath(r'.//a[@class="j_th_tit "]/@href').get()
+            if href:
+                # 使用正则表达式提取href中第二个/后面的数字部分
+                pid = re.search(r'/p/(\d+)', href)  # 假设/p/后面紧跟着数字
+                if pid:
+                    pid= pid.group(1)  # 提取第一个括号内的内容
+                    pids.append(pid)  # 添加到post_ids列表中
+                    print(f"total:{total} title:{title} pid:{pid}")
+            totals.append(total)
+            titles.append(title)
+
+
         for pid, title, total in zip(pids, titles, totals):
             yield TiebaTotalComment(
                 pid=pid,

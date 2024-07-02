@@ -1,0 +1,13 @@
+
+“python:S5890
+"PReplace the type hint "int" with "Optional[int]" or don't assign "None" to "pid"(‰Ò¥ÿıÿÿÿÿJ$03eac74b-cd8d-4b9e-be14-8503650bd50f
+python:S5890"RReplace the type hint "str" with "Optional[str]" or don't assign "None" to "title"(ŠâñJ$c1824909-cc41-4c90-94ce-8d0f33b37415
+”python:S5890"QReplace the type hint "str" with "Optional[str]" or don't assign "None" to "text"(²ÈÄ‚şÿÿÿÿJ$dcf01d75-ead5-4f80-8b59-c8579eff08cd
+•python:S5890"RReplace the type hint "int" with "Optional[int]" or don't assign "None" to "floor"(«óøãùÿÿÿÿJ$8d16ac61-8d84-436c-8c2d-0b7736dbec42
+python:S5890"QReplace the type hint "str" with "Optional[str]" or don't assign "None" to "time"(½µÈ¸J$a6dd8913-3e44-42c7-9492-3f49d4e388a0
+“python:S5890"PReplace the type hint "str" with "Optional[str]" or don't assign "None" to "uid"(º¢ßşüÿÿÿÿJ$cb828aed-4327-4802-91ba-480dfb93d1b2
+wpython:S1135"4Complete the task associated to this "TODO" comment.(º¢ßşüÿÿÿÿJ$64193fa9-bb3c-4db9-894d-b15ae8eb36c3
+python:S5890"PReplace the type hint "str" with "Optional[str]" or don't assign "None" to "pid"(ªâşåJ$afff3079-1204-4a69-a860-f34b04cfecc7
+python:S5890"RReplace the type hint "str" with "Optional[str]" or don't assign "None" to "title"(ŠâñJ$c0e1aeda-5cd5-4b45-affa-535e6af6bdf8
+python:S5890"QReplace the type hint "str" with "Optional[str]" or don't assign "None" to "time"(½µÈ¸J$e69a8997-3e01-4ddc-8da1-6cb95b6c7567
+•python:S5890"RReplace the type hint "int" with "Optional[int]" or don't assign "None" to "total"(ÛíşàÿÿÿÿÿJ$648425c8-7590-4c52-9530-dd3ececcd44d
