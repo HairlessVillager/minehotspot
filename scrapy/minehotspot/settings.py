@@ -1,4 +1,4 @@
-# Scrapy settings for minehotspot project
+# Scrapy settings for Summer project
 #
 # For simplicity, this file contains only settings considered important or
 # commonly used. You can find more settings consulting the documentation:
@@ -7,14 +7,14 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = "minehotspot"
+BOT_NAME = "Summer"
 
-SPIDER_MODULES = ["minehotspot.spiders"]
-NEWSPIDER_MODULE = "minehotspot.spiders"
+SPIDER_MODULES = ["Summer.spiders"]
+NEWSPIDER_MODULE = "Summer.spiders"
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = "minehotspot (+http://www.yourdomain.com)"
+#USER_AGENT = "Summer (+http://www.yourdomain.com)"
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
@@ -48,15 +48,15 @@ DEFAULT_REQUEST_HEADERS = {
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 #SPIDER_MIDDLEWARES = {
-#    "minehotspot.middlewares.MinehotspotSpiderMiddleware": 543,
+#    "Summer.middlewares.MinehotspotSpiderMiddleware": 543,
 #}
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-    "minehotspot.middlewares.CheckCAPTCHADownloadMiddleware": 542,
-    "minehotspot.middlewares.RemoveHtmlCommentDownloadMiddleware": 501,
-    "minehotspot.middlewares.RandomUserAgentDownloadMiddlware": 400,
+    "Summer.middlewares.CheckCAPTCHADownloadMiddleware": 542,
+    "Summer.middlewares.RemoveHtmlCommentDownloadMiddleware": 501,
+    "Summer.middlewares.RandomUserAgentDownloadMiddlware": 400,
 }
 
 # Enable or disable extensions
@@ -68,7 +68,7 @@ DOWNLOADER_MIDDLEWARES = {
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 #ITEM_PIPELINES = {
-#    "minehotspot.pipelines.MinehotspotPipeline": 300,
+#    "Summer.pipelines.MinehotspotPipeline": 300,
 #}
 
 # Enable and configure the AutoThrottle extension (disabled by default)

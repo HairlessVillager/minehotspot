@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 
 setup(
-    name         = 'minehotspot',
+    name         = 'Summer',
     version      = '1.0',
     packages     = find_packages(),
-    entry_points = {'scrapy': ['settings = minehotspot.settings']},
+    entry_points = {'scrapy': ['settings = Summer.settings']},
 )
