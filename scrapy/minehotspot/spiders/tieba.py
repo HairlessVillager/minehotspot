@@ -106,7 +106,7 @@ class TiebaPostSpider(scrapy.Spider):
         ]
         self.logger.debug(f"{len(content_times)=}")
         for text, time_, user_id, show_nickname in content_times:
-            yield replace(item, text=text, time=time, uid=f"{user_id}, {show_nickname}")
+            yield replace(item, text=text, time=time_, uid=f"{user_id}, {show_nickname}")
 
         for key in comment_list:
             pages = ceil(comment_list[key]["comment_num"] / 10)
