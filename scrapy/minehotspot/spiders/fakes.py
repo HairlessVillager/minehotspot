@@ -1,7 +1,4 @@
-import re
-import json
-from math import ceil
-import time
+import csv
 
 import scrapy
 
@@ -32,9 +29,17 @@ class TiebaPostSpider(scrapy.Spider):
         yield scrapy.Request("https://www.baidu.com", self.fake_callback, dont_filter=True)
 
     def fake_callback(self, response):
-        yield from [
-            TiebaComment(pid="123456", title="some title", text="some text", time="2024-05-15", floor=10)
-        ]
+        with open("post20240702.csv", "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                yield TiebaComment(
+                    pid=row["pid"],
+                    title=row["title"],
+                    text=row["text"],
+                    floor=row["floor"],
+                    time=row["time"],
+                    uid=row["uid"],
+                )
 
 
 class TiebaListSpider(scrapy.Spider):
@@ -66,6 +71,12 @@ class TiebaListSpider(scrapy.Spider):
         yield scrapy.Request("https://www.baidu.com", self.fake_callback, dont_filter=True)
 
     def fake_callback(self, response):
-        yield from [
-            TiebaTotalComment(pid="123456", title="some title", time="2024-05-15", total=123)
-        ]
+        with open("list20240702.csv", "r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                yield TiebaTotalComment(
+                    pid=row["pid"],
+                    title=row["title"],
+                    time=row["time"],
+                    total=row["total"],
+                )
