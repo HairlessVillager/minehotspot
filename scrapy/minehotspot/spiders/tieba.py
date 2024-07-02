@@ -5,7 +5,7 @@ import time
 
 import scrapy
 
-from minehotspot.items import TiebaComment, TiebaTotalComment
+from scrapy.minehotspot.items import TiebaComment, TiebaTotalComment
 
 
 class TiebaPostSpider(scrapy.Spider):
@@ -98,19 +98,22 @@ class TiebaPostSpider(scrapy.Spider):
         if comment_list == []:
             return
         content_times = [
-            (comment["content"], comment["now_time"])
+            (comment["content"], comment["now_time"], comment["user_id"], comment["show_nickname"])
             for id_ in comment_list.values()
             for comment in id_["comment_info"]
         ]
         self.logger.debug(f"{len(content_times)=}")
-        for text, time_ in content_times:
+        for text, time_, user_id, show_nickname in content_times:
             copy = item.copy()
             copy["text"] = text
             copy["time"] = time_
+            copy["uid"] = f"uid:{user_id}  昵称:{show_nickname}"
             yield copy
+
+
         for key in comment_list:
             pages = ceil(comment_list[key]["comment_num"] / 10)
-            for pn in range(2, pages+1):
+            for pn in range(2, pages + 1):
                 url = (
                     f"https://tieba.baidu.com/p/comment?"
                     f"tid={item['pid']}&pid={key}&pn={pn}&fid={578595}&t={self.get_timestamp()}"
@@ -125,10 +128,27 @@ class TiebaPostSpider(scrapy.Spider):
     def parse_comment(self, response, item):
         contents = response.xpath(r"//span[@class='lzl_content_main']").re(r"<span.*?> +(?P<content>.+?) +</span>")
         times = response.xpath(r"//span[@class='lzl_time']/text()").getall()
-        for text, time_ in zip(contents, times):
+        user_ids = []
+        show_nicknames = []
+        # print("contents长度:"+str(len(contents))+"  times长度"+str(len(times))) ## 调试语句
+        li_elements = response.xpath(r"//li[contains(@class,'lzl_single_post j_lzl_s_p')]")
+        # print("li_elements长度:"+str(len(li_elements)))
+        for li in li_elements:
+            # 提取data-field属性的值
+            data_field_str = li.attrib['data-field']
+            # 将JSON格式的字符串转换为Python字典
+            data_field_dict = json.loads(data_field_str)
+            # 提取spid和showname
+            spid = data_field_dict.get('spid')
+            showname = data_field_dict.get('showname')
+            user_ids.append(spid)
+            show_nicknames.append(showname)
+
+        for text, time_, user_id, show_nickname in zip(contents, times, user_ids, show_nicknames):
             copy = item.copy()
             copy["text"] = text
             copy["time"] = int(time.mktime(time.strptime(time_, "%Y-%m-%d %H:%M")))
+            copy["uid"] = f"uid:{user_id}  昵称:{show_nickname}"
             yield copy
 
 
@@ -173,11 +193,27 @@ class TiebaListSpider(scrapy.Spider):
             )
 
     def parse_list(self, response):
-        hrefs = response.xpath(r"//a[@rel='noopener']/self::*[starts-with(@href, '/p')]/@href").getall()
-        pids = [_[3:] for _ in hrefs]
-        titles = ["title"] * len(hrefs)
-        totals = [0 + 1] * len(hrefs)  # TODO: test data, remove this
-        self.logger.debug(f"{hrefs=}")
+        li_elements = response.xpath(r"//li[contains(@class,'j_thread_list clearfix thread_item_box')]")
+        print("数量：" + str(len(li_elements)))
+        pids = []
+        titles = []
+        totals = []
+        for li in li_elements:
+            total = li.xpath(r'.//span[@class="threadlist_rep_num center_text"]/text()').get()
+
+            title = li.xpath(r'.//a[@class="j_th_tit "]/text()').get()
+            print(f"空   {title}")
+            href = li.xpath(r'.//a[@class="j_th_tit "]/@href').get()
+            if href:
+                # 使用正则表达式提取href中第二个/后面的数字部分
+                pid = re.search(r'/p/(\d+)', href)  # 假设/p/后面紧跟着数字
+                if pid:
+                    pid = pid.group(1)  # 提取第一个括号内的内容
+                    pids.append(pid)  # 添加到post_ids列表中
+                    print(f"total:{total} title:{title} pid:{pid}")
+            totals.append(total)
+            titles.append(title)
+
         for pid, title, total in zip(pids, titles, totals):
             yield TiebaTotalComment(
                 pid=pid,
