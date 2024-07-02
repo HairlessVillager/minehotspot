@@ -5,7 +5,7 @@ import time
 
 import scrapy
 
-from scrapy.minehotspot.items import TiebaComment, TiebaTotalComment
+from minehotspot.items import TiebaComment, TiebaTotalComment
 
 
 class TiebaPostSpider(scrapy.Spider):
@@ -113,7 +113,7 @@ class TiebaPostSpider(scrapy.Spider):
 
         for key in comment_list:
             pages = ceil(comment_list[key]["comment_num"] / 10)
-            for pn in range(2, pages + 1):
+            for pn in range(2, pages+1):
                 url = (
                     f"https://tieba.baidu.com/p/comment?"
                     f"tid={item['pid']}&pid={key}&pn={pn}&fid={578595}&t={self.get_timestamp()}"
