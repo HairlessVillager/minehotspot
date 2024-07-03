@@ -2,6 +2,7 @@ import re
 import json
 from math import ceil
 import time
+from dataclasses import replace
 
 import scrapy
 
@@ -38,7 +39,7 @@ class TiebaPostSpider(scrapy.Spider):
         return int(time.time())
 
     def start_requests(self):
-        item = TiebaComment()
+        item = TiebaComment(None, None, None, None, None, None)
         yield scrapy.Request(
             url=f"https://tieba.baidu.com/p/{self.pid}",
             callback=self.parse_detail_pn,
@@ -53,7 +54,7 @@ class TiebaPostSpider(scrapy.Spider):
         }
         hrefs = response.xpath(r"//a[@rel='noopener']/self::*[starts-with(@href, '/p')]/@href").getall()
         hrefs = set(hrefs)
-        item = TiebaComment()
+        item = TiebaComment(None, None, None, None, None, None)
         self.logger.debug(f"{hrefs=}")
         for href in hrefs - except_hrefs:
             yield response.follow(
@@ -67,29 +68,29 @@ class TiebaPostSpider(scrapy.Spider):
         pages = response.xpath(r"//li[@class='l_reply_num']").re(r"共<span.*>(?P<pages>\d+)</span>页")[0]
         pages = int(pages)
         self.logger.info(f"{pages=}")
-        if "pid" not in item:
-            item["pid"] = re.match(r"https://tieba.baidu.com/p/(?P<post_id>\d+)", response.url).group("post_id")
-        if "title" not in item:
-            item["title"] = response.xpath(r"//h3/text()").get().strip()
+        if item.pid is None:
+            item.pid = re.match(r"https://tieba.baidu.com/p/(?P<post_id>\d+)", response.url).group("post_id")
+        if item.title is None:
+            item.title = response.xpath(r"//h3/text()").get().strip()
         texts = response.xpath(r'//div[@class="d_post_content j_d_post_content "]').re(r"<div.*> +(?P<c>.+)</div>")
         times = response.xpath(r'//div[@class="post-tail-wrap"]').re(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}")
-        show_nicknames = response.xpath('//a[contains(concat(" ", normalize-space(@class), " "), " p_author_name ") and contains(concat(" ", normalize-space(@class), " "), " j_user_card ")]/text()').getall()
 
-        for text, time_, show_nickname in zip(texts, times, show_nicknames):
-            copy = item.copy()
-            copy["text"] = text
-            copy["time"] = int(time.mktime(time.strptime(time_, "%Y-%m-%d %H:%M")))
-            copy["uid"]="       "+show_nickname
-            yield copy
+        for text, time_ in zip(texts, times):
+            time_ = int(time.mktime(time.strptime(time_, "%Y-%m-%d %H:%M")))
+            yield replace(item, text=text, time=time_
+                          
         yield response.follow(
-            url=f"https://tieba.baidu.com/p/totalComment?t={self.get_timestamp()}&tid={item['pid']}&pn={pn}&see_lz=0",
+            url=(
+                "https://tieba.baidu.com/p/totalComment"
+                f"?t={self.get_timestamp()}&tid={item.pid}&pn={pn}&see_lz=0"
+            ),
             callback=self.parse_totalComment,
             cb_kwargs=dict(item=item),
         )
         if pn+1 <= pages:
             pn += 1
             yield response.follow(
-                f"https://tieba.baidu.com/p/{item['pid']}/?pn={pn}",
+                f"https://tieba.baidu.com/p/{item.pid}/?pn={pn}",
                 callback=self.parse_detail_pn,
                 cb_kwargs=dict(item=item, pn=pn),
                 dont_filter=True,  # TODO: remove duplication filter
@@ -107,11 +108,7 @@ class TiebaPostSpider(scrapy.Spider):
         ]
         self.logger.debug(f"{len(content_times)=}")
         for text, time_, user_id, show_nickname in content_times:
-            copy = item.copy()
-            copy["text"] = text
-            copy["time"] = time_
-            copy["uid"] = f"uid:{user_id}  昵称:{show_nickname}"
-            yield copy
+             yield replace(item, text=text, time=time_, uid=f"{user_id}, {show_nickname}")
 
 
         for key in comment_list:
@@ -119,7 +116,7 @@ class TiebaPostSpider(scrapy.Spider):
             for pn in range(2, pages+1):
                 url = (
                     f"https://tieba.baidu.com/p/comment?"
-                    f"tid={item['pid']}&pid={key}&pn={pn}&fid={578595}&t={self.get_timestamp()}"
+                    f"tid={item.pid}&pid={key}&pn={pn}&fid={578595}&t={self.get_timestamp()}"
                 )
                 yield response.follow(
                     url=url,
@@ -148,11 +145,9 @@ class TiebaPostSpider(scrapy.Spider):
             show_nicknames.append(showname)
 
         for text, time_, user_id, show_nickname in zip(contents, times, user_ids, show_nicknames):
-            copy = item.copy()
-            copy["text"] = text
-            copy["time"] = int(time.mktime(time.strptime(time_, "%Y-%m-%d %H:%M")))
-            copy["uid"] = f"uid:{user_id}  昵称:{show_nickname}"
-            yield copy
+
+            yield replace(item, text=text, time=time_, uid=f"{user_id}, {show_nickname}")
+
 
 
 class TiebaListSpider(scrapy.Spider):
