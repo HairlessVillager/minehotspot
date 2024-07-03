@@ -74,11 +74,10 @@ class TiebaPostSpider(scrapy.Spider):
             item.title = response.xpath(r"//h3/text()").get().strip()
         texts = response.xpath(r'//div[@class="d_post_content j_d_post_content "]').re(r"<div.*> +(?P<c>.+)</div>")
         times = response.xpath(r'//div[@class="post-tail-wrap"]').re(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}")
-
-        for text, time_ in zip(texts, times):
+        show_nicknames = response.xpath('//a[contains(concat(" ", normalize-space(@class), " "), " p_author_name ") and contains(concat(" ", normalize-space(@class), " "), " j_user_card ")]/text()').getall()
+        for text, time_, show_nickname in zip(texts, times, show_nicknames):
             time_ = int(time.mktime(time.strptime(time_, "%Y-%m-%d %H:%M")))
-            yield replace(item, text=text, time=time_
-                          
+            yield replace(item, text=text, time=time_,uid=f'   {show_nickname}')
         yield response.follow(
             url=(
                 "https://tieba.baidu.com/p/totalComment"
