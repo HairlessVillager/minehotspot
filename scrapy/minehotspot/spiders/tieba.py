@@ -150,13 +150,14 @@ class TiebaListSpider(scrapy.Spider):
     name = "tiebalist"
     allowed_domains = ["tieba.baidu.com"]
 
-    def __init__(self, start: str, end: str, cookies_text: str = None, *args, **kwargs):
+    def __init__(self, topic: str, start: str, end: str, cookies_text: str = None, *args, **kwargs):
         """
         start, end:
             - (2000, 5000)
         """
         super(TiebaListSpider, self).__init__(*args, **kwargs)
         self.logger.debug(f"{start=}, {end=}, {cookies_text=}")
+        self.topic = topic
         self.start = int(start)
         self.end = int(end)
 
@@ -181,7 +182,7 @@ class TiebaListSpider(scrapy.Spider):
         for pn in r:
             self.logger.info(f"start_from_range(): {pn=}")
             yield scrapy.Request(
-                url=f"https://tieba.baidu.com/f?kw=galgame&ie=utf-8&pn={pn}",
+                url=f"https://tieba.baidu.com/f?kw={self.topic}&ie=utf-8&pn={pn}",
                 callback=self.parse_list,
                 cookies=self.cookies,
             )

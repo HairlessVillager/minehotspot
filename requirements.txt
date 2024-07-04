@@ -1,6 +1,6 @@
-scrapy
-scrapyd
-mysqlclient
-fake_useragent
-prefect
-SQLAlchemy
+scrapy==2.11.2
+scrapyd==1.4.3
+PyMySQL
+fake_useragent==1.5.1
+prefect==2.19.7
+SQLAlchemy==2.0.31

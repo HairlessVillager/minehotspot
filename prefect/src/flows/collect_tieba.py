@@ -61,7 +61,6 @@ def collect_tieba(topic: str, page_range: tuple = (0, 200)):
     start, end = page_range
     list_jobid = schedule_crawl_job("tiebalist_fake", {"topic": topic, "start": start, "end": end})
     total = get_job_result(list_jobid)
-    logger.debug(f"{total=}")
 
     with Session(engine) as session:
         store_tieba_total(session, total, revive=False)
@@ -77,4 +76,4 @@ def collect_tieba(topic: str, page_range: tuple = (0, 200)):
             post_jobids.append(jobid)
         for jobid in post_jobids:
             comment = get_job_result(jobid)
-            store_tieba_comment(comment)
+            store_tieba_comment(session, comment)
