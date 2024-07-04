@@ -1,8 +1,11 @@
 import csv
+import os
+from io import StringIO
 
 import scrapy
 
 from minehotspot.items import TiebaComment, TiebaTotalComment
+from .fake_data import list_csv, post_csv
 
 
 class TiebaPostSpider(scrapy.Spider):
@@ -29,16 +32,17 @@ class TiebaPostSpider(scrapy.Spider):
         yield scrapy.Request("https://www.baidu.com", self.fake_callback, dont_filter=True)
 
     def fake_callback(self, response):
-        with open("post20240702.csv", "r", encoding="utf-8") as f:
+        self.logger.info(f"{os.getcwd()=}")
+        with StringIO(post_csv) as f:
             reader = csv.DictReader(f)
             for row in reader:
                 yield TiebaComment(
                     pid=row["pid"],
-                    title=row["title"],
                     text=row["text"],
                     floor=row["floor"],
                     time=row["time"],
                     uid=row["uid"],
+                    uname="an uname",
                 )
 
 
@@ -71,12 +75,13 @@ class TiebaListSpider(scrapy.Spider):
         yield scrapy.Request("https://www.baidu.com", self.fake_callback, dont_filter=True)
 
     def fake_callback(self, response):
-        with open("list20240702.csv", "r", encoding="utf-8") as f:
+        with StringIO(list_csv) as f:
             reader = csv.DictReader(f)
             for row in reader:
                 yield TiebaTotalComment(
                     pid=row["pid"],
                     title=row["title"],
+                    topic="a topic",
                     time=row["time"],
                     total=row["total"],
                 )
