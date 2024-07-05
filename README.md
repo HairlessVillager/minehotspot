@@ -2,9 +2,14 @@ README.md
 
 # MineHotspot
 
-## Deploy
+## Quick Start
 
-1. Run MySQL Docker container: `docker run -d --name mysql -e MYSQL_DATABASE=MINEHOTSPOT_DB -e MYSQL_ROOT_PASSWORD=123456 -p 3306:3306 mysql:latest`
+1. Install Docker Desktop
+2. Run it
+3. git clone xxx
+4. cd minehotspot
+5. docker-compose build
+6. docker-compose up
 
 ## Useful Commands
 
