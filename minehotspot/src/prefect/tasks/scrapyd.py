@@ -1,8 +1,11 @@
 import json
 import time
+import os
 
 import requests
 from prefect import task, get_run_logger
+
+scrapyd_url = os.getenv("SCRAPYD_URL", "http://localhost:6800")
 
 
 @task
@@ -29,7 +32,7 @@ def schedule_crawl_job(spider: str, spider_kwargs: dict):
     logger.info(f"run spider '{spider}' with args {spider_kwargs}")
     try:
         response = requests.post(
-            "http://localhost:6800/schedule.json",
+            f"{scrapyd_url}/schedule.json",
             params={"project": "minehotspot", "spider": spider} | spider_kwargs
         )
     except requests.exceptions.ConnectionError as e:
@@ -40,6 +43,7 @@ def schedule_crawl_job(spider: str, spider_kwargs: dict):
         raise e
     assert response.status_code == 200
     result = json.loads(response.text)
+    logger.debug(f"{response.text=!r}")
     if result["status"] != "ok":
         msg = f"crawl job schedule failed with status={result['status']}"
         logger.error(msg)
@@ -50,14 +54,14 @@ def schedule_crawl_job(spider: str, spider_kwargs: dict):
 
 def _try_get_job_result(jobid: str) -> list:
     logger = get_run_logger()
-    jobs_response = requests.get("http://localhost:6800/listjobs.json?project=minehotspot")
+    jobs_response = requests.get(f"{scrapyd_url}/listjobs.json?project=minehotspot")
     assert jobs_response.status_code == 200
     jobs = json.loads(jobs_response.text)
     for finished_job in jobs["finished"]:
         if jobid == finished_job["id"]:
             logger.debug(f"job status: {finished_job}")
             items_url = finished_job["items_url"]
-            items_response = requests.get(f"http://localhost:6800{items_url}")
+            items_response = requests.get(f"{scrapyd_url}{items_url}")
             assert items_response.status_code == 200
             items_response.encoding = items_response.apparent_encoding
             lines = items_response.text.splitlines()

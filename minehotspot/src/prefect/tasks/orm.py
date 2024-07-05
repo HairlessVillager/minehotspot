@@ -1,4 +1,4 @@
-from functools import wraps
+from os import getenv
 from datetime import datetime
 
 from prefect import task, get_run_logger
@@ -7,9 +7,14 @@ from sqlalchemy import create_engine, select
 from ..models.tieba import TiebaBase, TiebaPost, TiebaComment, TiebaTotal
 
 
-engine = create_engine("sqlite:///db.sqlite3", echo=False)  # echo will be duplicated with logs
-base = TiebaBase
-base.metadata.create_all(engine)  # idempotent
+def get_engine():
+    engine = create_engine(
+        getenv("DATABASE_CONNECTION_URL"),
+        echo=True,
+    )  # echo will be duplicated with logs
+    base = TiebaBase
+    base.metadata.create_all(engine)  # idempotent
+    return engine
 
 
 @task

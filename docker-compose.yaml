@@ -1,0 +1,51 @@
+services:
+  database:
+    image: postgres
+    build: ./docker/database/
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: "123456"
+    networks:
+      - public
+
+  scrapyd:
+    image: scrapyd
+    build: ./docker/scrapyd/
+    ports:
+      - "6800:6800"
+    expose:
+      - "6800"
+    networks:
+      - public
+
+  prefect:
+    image: prefect
+    build: ./docker/prefect/
+    ports:
+      - "4200:4200"
+    expose:
+      - "4200"
+    depends_on:
+      - database
+    environment:
+      PREFECT_API_DATABASE_CONNECTION_URL: "postgresql+asyncpg://postgres:123456@database:5432/prefect"
+    networks:
+      - public
+
+  minehotspot:
+    image: minehotspot
+    build: ./minehotspot/
+    depends_on:
+      - prefect
+      - database
+      - scrapyd
+    environment:
+      DATABASE_CONNECTION_URL: "postgresql+psycopg2://postgres:123456@database:5432/minehotspot"
+      SCRAPYD_URL: "http://scrapyd:6800"
+    networks:
+      - public
+
+networks:
+  public:
+    driver: bridge

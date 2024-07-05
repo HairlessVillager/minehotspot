@@ -12,10 +12,10 @@ class TiebaPostSpider(scrapy.Spider):
     name = "tiebapost_fake"
     allowed_domains = ["tieba.baidu.com"]
 
-    def __init__(self, pid: int, cookies_text: str = None, *args, **kwargs):
+    def __init__(self, pid: str, cookies_text: str = None, *args, **kwargs):
         super(TiebaPostSpider, self).__init__(*args, **kwargs)
         self.logger.debug(f"{pid=}, {cookies_text=}")
-        self.pid = pid
+        self.pid = int(pid)
 
         cookies_text = """
         FAKE_COOKIES=xxx
@@ -29,9 +29,11 @@ class TiebaPostSpider(scrapy.Spider):
         self.logger.debug(f"{self.cookies=}")
 
     def start_requests(self):
-        yield scrapy.Request("https://www.baidu.com", self.fake_callback, dont_filter=True)
+        yield scrapy.Request("https://www.huawei.com/cn/", self.fake_callback, dont_filter=True)
 
     def fake_callback(self, response):
+        if self.pid != 8985907273:
+            return []
         self.logger.info(f"{os.getcwd()=}")
         with StringIO(post_csv) as f:
             reader = csv.DictReader(f)
@@ -39,9 +41,9 @@ class TiebaPostSpider(scrapy.Spider):
                 yield TiebaComment(
                     pid=row["pid"],
                     text=row["text"],
-                    floor=row["floor"],
+                    floor=114514,
                     time=row["time"],
-                    uid=row["uid"],
+                    uid=1919810,
                     uname="an uname",
                 )
 
@@ -72,7 +74,7 @@ class TiebaListSpider(scrapy.Spider):
         self.logger.debug(f"{self.cookies=}")
 
     def start_requests(self):
-        yield scrapy.Request("https://www.baidu.com", self.fake_callback, dont_filter=True)
+        yield scrapy.Request("https://www.huawei.com/cn/", self.fake_callback, dont_filter=True)
 
     def fake_callback(self, response):
         with StringIO(list_csv) as f:

@@ -7,6 +7,9 @@ from datetime import datetime
 from sqlalchemy import (
     ForeignKey,
 )
+from sqlalchemy import (
+    BigInteger,
+)
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
@@ -22,7 +25,7 @@ class TiebaBase(DeclarativeBase):
 class TiebaPost(TiebaBase):
     __tablename__ = "tieba_post"
 
-    pid: Mapped[int] = mapped_column(primary_key=True)
+    pid: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     topic: Mapped[str]
     title: Mapped[str]
     died: Mapped[bool] = mapped_column(default=False)
@@ -41,13 +44,13 @@ class TiebaPost(TiebaBase):
 class TiebaComment(TiebaBase):
     __tablename__ = "tieba_comment"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     text: Mapped[str]
     floor: Mapped[int]
     time: Mapped[datetime]
-    uid: Mapped[Optional[int]]
+    uid: Mapped[Optional[int]] = mapped_column(BigInteger)
     uname: Mapped[str]
-    pid: Mapped[int] = mapped_column(ForeignKey("tieba_post.pid"))
+    pid: Mapped[int] = mapped_column(BigInteger, ForeignKey("tieba_post.pid"))
 
     post: Mapped["TiebaPost"] = relationship(back_populates="comments")
 
@@ -64,10 +67,10 @@ class TiebaComment(TiebaBase):
 class TiebaTotal(TiebaBase):
     __tablename__ = "tieba_total"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True)
     total: Mapped[int] = mapped_column(default=0)
     time: Mapped[datetime] = mapped_column(default=datetime.now)
-    pid: Mapped[int] = mapped_column(ForeignKey("tieba_post.pid"))
+    pid: Mapped[int] = mapped_column(BigInteger, ForeignKey("tieba_post.pid"))
 
     post: Mapped["TiebaPost"] = relationship(back_populates="lifeline")
 

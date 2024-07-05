@@ -48,15 +48,11 @@ class TiebaPostSpider(scrapy.Spider):
         )
 
     def parse_list(self, response):
-        except_hrefs = {
-            # "/p/8251345629",  # 【2023版吧务工作楼】警告//咨询//举报//建议处
-            # "/p/7527868317",  # 【Galgame吧】吧规与导航
-        }
         hrefs = response.xpath(r"//a[@rel='noopener']/self::*[starts-with(@href, '/p')]/@href").getall()
         hrefs = set(hrefs)
         item = TiebaComment(None, None, None, None, None, None)
         self.logger.debug(f"{hrefs=}")
-        for href in hrefs - except_hrefs:
+        for href in hrefs:
             yield response.follow(
                 href,
                 callback=self.parse_detail_pn,
@@ -127,15 +123,10 @@ class TiebaPostSpider(scrapy.Spider):
         times = response.xpath(r"//span[@class='lzl_time']/text()").getall()
         user_ids = []
         show_nicknames = []
-        # print("contents长度:"+str(len(contents))+"  times长度"+str(len(times))) ## 调试语句
         li_elements = response.xpath(r"//li[contains(@class,'lzl_single_post j_lzl_s_p')]")
-        # print("li_elements长度:"+str(len(li_elements)))
         for li in li_elements:
-            # 提取data-field属性的值
             data_field_str = li.attrib['data-field']
-            # 将JSON格式的字符串转换为Python字典
             data_field_dict = json.loads(data_field_str)
-            # 提取spid和showname
             spid = data_field_dict.get('spid')
             showname = data_field_dict.get('showname')
             user_ids.append(spid)
@@ -189,7 +180,6 @@ class TiebaListSpider(scrapy.Spider):
 
     def parse_list(self, response):
         li_elements = response.xpath(r"//li[contains(@class,'j_thread_list clearfix thread_item_box')]")
-        print("数量：" + str(len(li_elements)))
         pids = []
         titles = []
         totals = []
@@ -197,15 +187,12 @@ class TiebaListSpider(scrapy.Spider):
             total = li.xpath(r'.//span[@class="threadlist_rep_num center_text"]/text()').get()
 
             title = li.xpath(r'.//a[@class="j_th_tit "]/text()').get()
-            print(f"空   {title}")
             href = li.xpath(r'.//a[@class="j_th_tit "]/@href').get()
             if href:
-                # 使用正则表达式提取href中第二个/后面的数字部分
-                pid = re.search(r'/p/(\d+)', href)  # 假设/p/后面紧跟着数字
+                pid = re.search(r'/p/(\d+)', href)
                 if pid:
-                    pid = pid.group(1)  # 提取第一个括号内的内容
-                    pids.append(pid)  # 添加到post_ids列表中
-                    print(f"total:{total} title:{title} pid:{pid}")
+                    pid = pid.group(1)
+                    pids.append(pid)
             totals.append(total)
             titles.append(title)
 

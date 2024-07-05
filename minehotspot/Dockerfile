@@ -13,4 +13,4 @@ RUN sed -i 's/\r//' *.sh
 
 EXPOSE 6800
 
-ENTRYPOINT bash startup.sh
+ENTRYPOINT python serve.py

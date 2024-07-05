@@ -1,4 +1,5 @@
 from random import seed, randint
+from datetime import datetime, timedelta
 
 from prefect import (
     flow,
@@ -12,7 +13,7 @@ from ..tasks.scrapyd import (
     get_job_result,
 )
 from ..tasks.orm import (
-    engine,
+    get_engine,
     query_lifelines,
     store_tieba_total,
     store_tieba_comment,
@@ -24,14 +25,14 @@ from ..models.tieba import (
 )
 
 
-def is_end_of_line(lifeline: list[tuple[int, int]], now: int = None) -> bool:
+def is_end_of_line(lifeline: list[tuple[int, int]], now: datetime = None) -> bool:
     """Check if the post is at the end of line (EOL) by the lifeline.
 
     Parameter
     ---------
     lifeline: list[tuple[int, int]]
         A list of (timestamp, total), ordered by timestamp on ascending order.
-    now: int = None
+    now: datetime.datetime = None
         The timestamp that check based on.
         Leave None to automatically use the current time.
 
@@ -41,7 +42,13 @@ def is_end_of_line(lifeline: list[tuple[int, int]], now: int = None) -> bool:
         True if the post is EOL.
     """
     logger = get_run_logger()
-    return False  # FIXME: test code, remove this
+    if now is None:
+        now = datetime.now()
+    last_comment_time = datetime.fromtimestamp(lifeline[-1][1])
+    if now - last_comment_time > timedelta(days=1):
+        return True
+    else:
+        return False
 
 
 @flow
@@ -62,6 +69,7 @@ def collect_tieba(topic: str, page_range: tuple = (0, 200)):
     list_jobid = schedule_crawl_job("tiebalist_fake", {"topic": topic, "start": start, "end": end})
     total = get_job_result(list_jobid)
 
+    engine = get_engine()
     with Session(engine) as session:
         store_tieba_total(session, total, revive=False)
 
