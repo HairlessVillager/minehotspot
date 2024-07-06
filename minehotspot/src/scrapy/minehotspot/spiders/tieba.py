@@ -103,7 +103,7 @@ class TiebaPostSpider(scrapy.Spider):
         ]
         self.logger.debug(f"{len(content_times)=}")
         for text, time_, user_id, show_nickname in content_times:
-            yield replace(item, text=text, time=time_, uid=f"{user_id}, {show_nickname}")
+            yield replace(item, text=text, time=time_, uid=f"{user_id}, {show_nickname}")  # TODO: 二级评论的floor字段
 
         for key in comment_list:
             pages = ceil(comment_list[key]["comment_num"] / 10)
@@ -135,7 +135,7 @@ class TiebaPostSpider(scrapy.Spider):
 
         for text, time_, user_id, show_nickname in zip(contents, times, user_ids, show_nicknames):
             time_ = int(time.mktime(time.strptime(time_, "%Y-%m-%d %H:%M")))
-            yield replace(item, text=text, time=time_, uid=f"{user_id}, {show_nickname}")
+            yield replace(item, text=text, time=time_, uid=f"{user_id}, {show_nickname}")  # TODO: 二级评论的floor字段
 
 
 class TiebaListSpider(scrapy.Spider):
