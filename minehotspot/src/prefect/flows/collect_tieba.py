@@ -45,7 +45,7 @@ def is_end_of_line(lifeline: list[tuple[int, int]], now: datetime = None) -> boo
     if now is None:
         now = datetime.now()
     last_comment_time = datetime.fromtimestamp(lifeline[-1][1])
-    if now - last_comment_time > timedelta(days=1):
+    if now - last_comment_time > timedelta(days=1):  # FIXME: bad implementation
         return True
     else:
         return False
