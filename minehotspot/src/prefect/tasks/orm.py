@@ -54,20 +54,24 @@ def store_tieba_total(session, rows: list[dict], revive: bool):
 
 
 @task
-def store_tieba_comment(session, rows: list[dict]):
+def store_tieba_comment(session, rows: list[dict], kill: bool):
     """Store the Comment rows into database.
 
     Parameter
     ---------
     rows: list[dict]
         The comment data rows. See items.TiebaComment for details.
+    kill: bool
+        If True, set post.died=True.
     """
     logger = get_run_logger()
     logger.info(f"received {len(rows)} rows")
     logger.debug(f"{rows[:10]=}")
     for row in rows:
         # pid, text, floor, time, uid
-        assert session.get(TiebaPost, row["pid"])
+        post = session.get(TiebaPost, row["pid"])
+        post.died = True
+        session.merge(post)
         comment = TiebaComment(
             pid=row["pid"],
             uid=row["uid"],
