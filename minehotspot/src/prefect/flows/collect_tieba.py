@@ -45,7 +45,7 @@ def is_end_of_line(lifeline: list[tuple[int, int]], now: datetime = None) -> boo
     if now is None:
         now = datetime.now()
     last_comment_time = datetime.fromtimestamp(lifeline[-1][1])
-    if now - last_comment_time > timedelta(days=1):
+    if now - last_comment_time > timedelta(days=1):  # FIXME: bad implementation
         return True
     else:
         return False
@@ -66,7 +66,9 @@ def collect_tieba(topic: str, page_range: tuple = (0, 200)):
 
     logger = get_run_logger()
     start, end = page_range
-    list_jobid = schedule_crawl_job("tiebalist_fake", {"topic": topic, "start": start, "end": end})
+    list_jobid = schedule_crawl_job(
+        "tiebalist_fake", {"topic": topic, "start": start, "end": end}
+    )
     total = get_job_result(list_jobid)
 
     engine = get_engine()
@@ -75,7 +77,9 @@ def collect_tieba(topic: str, page_range: tuple = (0, 200)):
 
         # collect end-of-life posts
         lifelines = query_lifelines(session, False)
-        eol_pids = [pid for pid, lifeline in lifelines.items() if is_end_of_line(lifeline)]
+        eol_pids = [
+            pid for pid, lifeline in lifelines.items() if is_end_of_line(lifeline)
+        ]
         eol_pids = [8985907273]  # FIXME: test code, remove this
         logger.debug(f"{eol_pids=}")
         post_jobids = []
@@ -84,4 +88,4 @@ def collect_tieba(topic: str, page_range: tuple = (0, 200)):
             post_jobids.append(jobid)
         for jobid in post_jobids:
             comment = get_job_result(jobid)
-            store_tieba_comment(session, comment)
+            store_tieba_comment(session, comment, kill=True)
