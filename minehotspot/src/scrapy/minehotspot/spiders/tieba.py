@@ -77,8 +77,7 @@ class TiebaPostSpider(scrapy.Spider):
         for lis_uid in lis_uids:
             json_data = json.loads(lis_uid.attrib["data-field"])
             uids.append(json_data["user_id"])
-        print(f"评论爬取失败？：texts:{len(texts)}  times:{len(times)}   floor:{len(floors)}  uids:{len(uids)}  show_nicknames:{len(show_nicknames)}")
-        print(lis_uids)
+
         for text, time_ , floor, uid, show_nickname in zip(texts, times, floors, uids, show_nicknames):
             time_ = int(time.mktime(time.strptime(time_, "%Y-%m-%d %H:%M")))
             yield replace(item, text=text, time=time_, floor=floor, uid=uid, uname=show_nickname)
