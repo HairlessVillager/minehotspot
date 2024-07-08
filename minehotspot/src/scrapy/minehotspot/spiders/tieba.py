@@ -66,14 +66,22 @@ class TiebaPostSpider(scrapy.Spider):
         self.logger.info(f"{pages=}")
         if item.pid is None:
             item.pid = re.match(r"https://tieba.baidu.com/p/(?P<post_id>\d+)", response.url).group("post_id")
-        if item.title is None:
-            item.title = response.xpath(r"//h3/text()").get().strip()
+        # if item.title is None:
+        #     item.title = response.xpath(r"//h3/text()").get().strip()
         texts = response.xpath(r'//div[@class="d_post_content j_d_post_content "]').re(r"<div.*> +(?P<c>.+)</div>")
         times = response.xpath(r'//div[@class="post-tail-wrap"]').re(r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}")
         floors = response.xpath(r'//div[@class="post-tail-wrap"]').re(r"(\d+)楼")
-        for text, time_ , floor in zip(texts, times, floors):
+        show_nicknames = response.xpath('//a[contains(concat(" ", normalize-space(@class), " "), " p_author_name ") and contains(concat(" ", normalize-space(@class), " "), " j_user_card ")]/text()').getall()
+        uids = []
+        lis_uids = response.xpath("//li[@class='d_name']")
+        for lis_uid in lis_uids:
+            json_data = json.loads(lis_uid.attrib["data-field"])
+            uids.append(json_data["user_id"])
+        print(f"评论爬取失败？：texts:{len(texts)}  times:{len(times)}   floor:{len(floors)}  uids:{len(uids)}  show_nicknames:{len(show_nicknames)}")
+        print(lis_uids)
+        for text, time_ , floor, uid, show_nickname in zip(texts, times, floors, uids, show_nicknames):
             time_ = int(time.mktime(time.strptime(time_, "%Y-%m-%d %H:%M")))
-            yield replace(item, text=text, time=time_, floor=floor)
+            yield replace(item, text=text, time=time_, floor=floor, uid=uid, uname=show_nickname)
         yield response.follow(
             url=(
                 "https://tieba.baidu.com/p/totalComment"
@@ -103,7 +111,7 @@ class TiebaPostSpider(scrapy.Spider):
         ]
         self.logger.debug(f"{len(content_times)=}")
         for text, time_, user_id, show_nickname in content_times:
-            yield replace(item, text=text, time=time_, uid=f"{user_id}, {show_nickname}")  # TODO: 二级评论的floor字段
+            yield replace(item, text=text, time=time_, uid=user_id, uname=show_nickname)  # TODO: 二级评论的floor字段
 
         for key in comment_list:
             pages = ceil(comment_list[key]["comment_num"] / 10)
@@ -135,7 +143,7 @@ class TiebaPostSpider(scrapy.Spider):
 
         for text, time_, user_id, show_nickname in zip(contents, times, user_ids, show_nicknames):
             time_ = int(time.mktime(time.strptime(time_, "%Y-%m-%d %H:%M")))
-            yield replace(item, text=text, time=time_, uid=f"{user_id}, {show_nickname}")  # TODO: 二级评论的floor字段
+            yield replace(item, text=text, time=time_, uid=user_id, uname = show_nickname)  # TODO: 二级评论的floor字段
 
 
 class TiebaListSpider(scrapy.Spider):
