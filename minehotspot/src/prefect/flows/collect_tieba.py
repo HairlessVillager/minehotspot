@@ -6,6 +6,7 @@ from prefect import (
     task,
     get_run_logger,
 )
+from prefect.variables import Variable
 from sqlalchemy.orm import Session
 
 from ..tasks.scrapyd import (
@@ -67,9 +68,15 @@ def collect_tieba(topic: str, page_range: tuple = (0, 200)):
     logger = get_run_logger()
     start, end = page_range
     list_jobid = schedule_crawl_job(
-        "tiebalist_fake", {"topic": topic, "start": start, "end": end}
+        "tiebalist",
+        {
+            "topic": topic,
+            "start": start,
+            "end": end,
+            "cookies_text": Variable.get("cookies_text"),
+        },
     )
-    total = get_job_result(list_jobid)
+    total = get_job_result(list_jobid, interval=3, retry=40)
 
     engine = get_engine()
     with Session(engine) as session:
@@ -80,12 +87,13 @@ def collect_tieba(topic: str, page_range: tuple = (0, 200)):
         eol_pids = [
             pid for pid, lifeline in lifelines.items() if is_end_of_line(lifeline)
         ]
-        eol_pids = [8985907273]  # FIXME: test code, remove this
         logger.debug(f"{eol_pids=}")
         post_jobids = []
         for pid in eol_pids:
-            jobid = schedule_crawl_job("tiebapost_fake", {"pid": pid})
+            jobid = schedule_crawl_job(
+                "tiebapost", {"pid": pid, "cookies_text": Variable.get("cookies_text")}
+            )
             post_jobids.append(jobid)
         for jobid in post_jobids:
-            comment = get_job_result(jobid)
+            comment = get_job_result(jobid, interval=10, retry=60)
             store_tieba_comment(session, comment, kill=True)
