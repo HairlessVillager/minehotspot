@@ -243,6 +243,7 @@ class TiebaListSpider(scrapy.Spider):
         for pid, title, total in zip(pids, titles, totals):
             yield TiebaTotalComment(
                 pid=pid,
+                topic=self.topic,
                 title=title,
                 total=total,
                 time=self.get_timestamp(),
