@@ -47,11 +47,12 @@ def deploy_spiders():
 
 
 if __name__ == "__main__":
-    # FIXME: remove comment in production environment
     # NOTE: The bash is not work in Windows.
     # - in Windows, comment this and run `python setup.py bdist_egg` manually.
-    # - in Linux, no comment
     # -----------
-    # bdist_egg()
+    if os.getenv("DOCKER"):
+        bdist_egg()
+    else:
+        pass  # please run `python setup.py bdist_egg` manually
     deploy_spiders()
     collect_tieba("galgame")

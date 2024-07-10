@@ -43,6 +43,7 @@ services:
     environment:
       DATABASE_CONNECTION_URL: "postgresql+psycopg2://postgres:123456@database:5432/minehotspot"
       SCRAPYD_URL: "http://scrapyd:6800"
+      DOCKER: "1"
     networks:
       - public
 
