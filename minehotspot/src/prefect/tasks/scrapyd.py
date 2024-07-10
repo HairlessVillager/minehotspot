@@ -110,3 +110,9 @@ def get_job_result(jobid: str, interval: int, retry: int):
                 raise ValueError(msg)
             logger.info(f"result not ready, wait {interval} seconds ({cnt}/{retry})...")
             time.sleep(interval)
+
+
+@task
+def cancel_all_jobs():
+    """Cancel all jobs."""
+    raise NotImplementedError()

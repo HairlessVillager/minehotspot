@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 from ..tasks.scrapyd import (
     schedule_crawl_job,
     get_job_result,
+    cancel_all_jobs,
 )
 from ..tasks.orm import (
     get_engine,
@@ -98,12 +99,19 @@ def collect_tieba(topic: str, page_range: tuple = (0, 200)):
         )
         logger.debug(f"{eol_pids=}")
         post_jobids = []
-        for pid in eol_pids:
-            jobid = schedule_crawl_job(
-                "tiebapost" if not use_fake_data else "tiebapost_fake",
-                {"pid": pid, "cookies_text": cookies_text},
-            )
-            post_jobids.append(jobid)
-        for jobid in post_jobids:
-            comment = get_job_result(jobid, interval=10, retry=60)
-            store_tieba_comment(session, comment, kill=True)
+        try:
+            for pid in eol_pids:
+                jobid = schedule_crawl_job(
+                    "tiebapost" if not use_fake_data else "tiebapost_fake",
+                    {"pid": pid, "cookies_text": cookies_text},
+                )
+                post_jobids.append(jobid)
+            for jobid in post_jobids:
+                comment = get_job_result(jobid, interval=10, retry=60)
+                store_tieba_comment(session, comment, kill=True)
+        except Exception as e:
+            logger.info("an error occurs, cancel all jobs...")
+            cancel_all_jobs()
+            logger.info("cancel all jobs successfully")
+            logger.error(e)
+            raise e
