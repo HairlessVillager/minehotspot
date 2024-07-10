@@ -33,12 +33,11 @@ def schedule_crawl_job(spider: str, spider_kwargs: dict):
     try:
         response = requests.post(
             f"{scrapyd_url}/schedule.json",
-            params={"project": "minehotspot", "spider": spider} | spider_kwargs
+            params={"project": "minehotspot", "spider": spider} | spider_kwargs,
         )
     except requests.exceptions.ConnectionError as e:
         logger.error(
-            "connection failed, try to start up "
-            "scrapyd or check scrapyd status"
+            "connection failed, try to start up " "scrapyd or check scrapyd status"
         )
         raise e
     assert response.status_code == 200
@@ -62,6 +61,10 @@ def _try_get_job_result(jobid: str) -> list:
             logger.debug(f"job status: {finished_job}")
             items_url = finished_job["items_url"]
             items_response = requests.get(f"{scrapyd_url}{items_url}")
+            if items_response.status_code == 404:
+                raise ValueError(
+                    "status code = 404, check scrapyd.items_dir in scrapyd.conf"
+                )
             assert items_response.status_code == 200
             items_response.encoding = items_response.apparent_encoding
             lines = items_response.text.splitlines()
@@ -71,16 +74,16 @@ def _try_get_job_result(jobid: str) -> list:
 
 
 @task
-def get_job_result(jobid: str, interval: int = 3, retry: int = 10):
+def get_job_result(jobid: str, interval: int, retry: int):
     """Get the crawl job result on scrapyd.
 
     Parameter
     ---------
     jobid: str
         The jobid.
-    interval: int = 3
+    interval: int
         The seconds the task will sleep when result not ready.
-    retry: int = 10
+    retry: int
         The query times.
 
     Return
