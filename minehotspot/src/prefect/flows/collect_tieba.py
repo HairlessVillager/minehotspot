@@ -67,7 +67,7 @@ def collect_tieba(topic: str, page_range: tuple = (0, 200)):
 
     logger = get_run_logger()
     start, end = page_range
-    cookies_text = Variable.get("cookies_text")
+    cookies_text = Variable.get("cookies_text").value
     if cookies_text is None:
         raise ValueError(
             "cookies_text is empty, set it on Prefect WebUI (may http://localhost:4200/)"
@@ -96,7 +96,7 @@ def collect_tieba(topic: str, page_range: tuple = (0, 200)):
         post_jobids = []
         for pid in eol_pids:
             jobid = schedule_crawl_job(
-                "tiebapost", {"pid": pid, "cookies_text": Variable.get("cookies_text")}
+                "tiebapost", {"pid": pid, "cookies_text": cookies_text}
             )
             post_jobids.append(jobid)
         for jobid in post_jobids:
