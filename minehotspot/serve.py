@@ -69,7 +69,7 @@ if __name__ == "__main__":
     # NOTE: The bash is not work in Windows.
     # - in Windows, comment this and run `python setup.py bdist_egg` manually.
     # -----------
-    if os.getenv("DOCKER"):
+    if int(os.getenv("DOCKER")):
         bdist_egg()
     else:
         pass  # please run `python setup.py bdist_egg` manually

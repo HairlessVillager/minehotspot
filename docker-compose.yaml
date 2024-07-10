@@ -42,5 +42,5 @@ services:
       SCRAPYD_URL: "http://scrapyd:6800"
       PREFECT_API_URL: "http://prefect:4200/api"
       PREFECT_LOGGING_SERVER_LEVEL: "DEBUG"
-      DOCKER: "1"
+      DOCKER: "1"  # NOTE: docker container environment flag, DON'T change it
       WAIT_PREFECT_SECONDS: "10"  # wait for prefect is ready for serve
