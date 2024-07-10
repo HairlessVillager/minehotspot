@@ -67,13 +67,18 @@ def collect_tieba(topic: str, page_range: tuple = (0, 200)):
 
     logger = get_run_logger()
     start, end = page_range
+    cookies_text = Variable.get("cookies_text")
+    if cookies_text is None:
+        raise ValueError(
+            "cookies_text is empty, set it on Prefect WebUI (may http://localhost:4200/)"
+        )
     list_jobid = schedule_crawl_job(
         "tiebalist",
         {
             "topic": topic,
             "start": start,
             "end": end,
-            "cookies_text": Variable.get("cookies_text"),
+            "cookies_text": cookies_text,
         },
     )
     total = get_job_result(list_jobid, interval=3, retry=40)
