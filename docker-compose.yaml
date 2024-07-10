@@ -43,4 +43,4 @@ services:
       PREFECT_API_URL: "http://prefect:4200/api"
       PREFECT_LOGGING_SERVER_LEVEL: "DEBUG"
       DOCKER: "1"
-      WAIT_PREFECT_SECONDS: "5"
+      WAIT_PREFECT_SECONDS: "10"  # wait for prefect is ready for serve
