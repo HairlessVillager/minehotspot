@@ -96,6 +96,7 @@ def get_job_result(jobid: str, interval: int, retry: int):
     """
     logger = get_run_logger()
     cnt = 0
+    logger.info(f"{jobid=}")
     while True:
         result = _try_get_job_result(jobid=jobid)
         if result is not None:

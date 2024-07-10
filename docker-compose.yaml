@@ -41,5 +41,6 @@ services:
       DATABASE_CONNECTION_URL: "postgresql+psycopg2://postgres:123456@database:5432/minehotspot"
       SCRAPYD_URL: "http://scrapyd:6800"
       PREFECT_API_URL: "http://prefect:4200/api"
+      PREFECT_LOGGING_SERVER_LEVEL: "DEBUG"
       DOCKER: "1"
       WAIT_PREFECT_SECONDS: "5"
