@@ -2,6 +2,7 @@ import os
 import subprocess
 
 import requests
+from prefect.variables import Variable
 
 from src.prefect.flows.collect_tieba import collect_tieba
 
@@ -50,6 +51,7 @@ if __name__ == "__main__":
     # NOTE: The bash is not work in Windows.
     # - in Windows, comment this and run `python setup.py bdist_egg` manually.
     # -----------
+    Variable.set(name="cookies_text", value=os.getenv("COOKIES_TEXT"))
     if os.getenv("DOCKER"):
         bdist_egg()
     else:

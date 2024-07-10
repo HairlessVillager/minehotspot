@@ -41,6 +41,7 @@ services:
       - database
       - scrapyd
     environment:
+      COOKIES_TEXT: "your_cookies"
       DATABASE_CONNECTION_URL: "postgresql+psycopg2://postgres:123456@database:5432/minehotspot"
       SCRAPYD_URL: "http://scrapyd:6800"
       DOCKER: "1"
