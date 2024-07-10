@@ -46,6 +46,9 @@ def schedule_crawl_job(spider: str, spider_kwargs: dict):
     if result["status"] != "ok":
         msg = f"crawl job schedule failed with status={result['status']}"
         logger.error(msg)
+        if result["message"]:
+            logger.info("message:")
+            logger.info(result["message"])
         raise ValueError(msg)
     logger.info(f"return with jobid={result['jobid']}")
     return result["jobid"]
