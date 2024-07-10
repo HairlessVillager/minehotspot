@@ -44,3 +44,4 @@ services:
       PREFECT_LOGGING_SERVER_LEVEL: "DEBUG"
       DOCKER: "1"  # NOTE: docker container environment flag, DON'T change it
       WAIT_PREFECT_SECONDS: "10"  # wait for prefect is ready for serve
+      USE_FAKE_DATA: "1"  # NOTE: if 0, crawl the real data; if 1, use the fake data

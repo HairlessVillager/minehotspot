@@ -1,5 +1,6 @@
 from random import seed, randint
 from datetime import datetime, timedelta
+from os import getenv
 
 from prefect import (
     flow,
@@ -64,6 +65,7 @@ def collect_tieba(topic: str, page_range: tuple = (0, 200)):
         The page number range of posts, format: (start, end).
         The page number could be found on the bottom.
     """
+    use_fake_data = bool(int(getenv("USE_FAKE_DATA")))
 
     logger = get_run_logger()
     start, end = page_range
@@ -73,7 +75,7 @@ def collect_tieba(topic: str, page_range: tuple = (0, 200)):
             "cookies_text is empty, set it on Prefect WebUI (may http://localhost:4200/)"
         )
     list_jobid = schedule_crawl_job(
-        "tiebalist",
+        "tiebalist" if not use_fake_data else "tiebalist_fake",
         {
             "topic": topic,
             "start": start,
@@ -89,14 +91,17 @@ def collect_tieba(topic: str, page_range: tuple = (0, 200)):
 
         # collect end-of-life posts
         lifelines = query_lifelines(session, False)
-        eol_pids = [
-            pid for pid, lifeline in lifelines.items() if is_end_of_line(lifeline)
-        ]
+        eol_pids = (
+            [pid for pid, lifeline in lifelines.items() if is_end_of_line(lifeline)]
+            if not use_fake_data
+            else [8985907273]
+        )
         logger.debug(f"{eol_pids=}")
         post_jobids = []
         for pid in eol_pids:
             jobid = schedule_crawl_job(
-                "tiebapost", {"pid": pid, "cookies_text": cookies_text}
+                "tiebapost" if not use_fake_data else "tiebapost_fake",
+                {"pid": pid, "cookies_text": cookies_text},
             )
             post_jobids.append(jobid)
         for jobid in post_jobids:
