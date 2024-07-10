@@ -1,10 +1,24 @@
 import os
+import time
 import subprocess
 
 import requests
 from prefect.variables import Variable
 
 from src.prefect.flows.collect_tieba import collect_tieba
+
+
+def check_prefect(seconds):
+    print(f"sleep {seconds}s for prefect server start...")
+    time.sleep(seconds)
+    print("wake up")
+
+    try:
+        resp = requests.get(os.getenv("PREFECT_API_URL"))
+    except requests.exceptions.ConnectionError as e:
+        print(f"{e!r}")
+        print("check if PREFECT_API_HOST=='0.0.0.0'")
+        exit(-1)
 
 
 def bdist_egg():
@@ -48,10 +62,13 @@ def deploy_spiders():
 
 
 if __name__ == "__main__":
+    seconds = int(os.getenv("WAIT_PREFECT_SECONDS"))
+    check_prefect(seconds)
+
+    Variable.set(name="cookies_text", value=os.getenv("COOKIES_TEXT"))
     # NOTE: The bash is not work in Windows.
     # - in Windows, comment this and run `python setup.py bdist_egg` manually.
     # -----------
-    Variable.set(name="cookies_text", value=os.getenv("COOKIES_TEXT"))
     if os.getenv("DOCKER"):
         bdist_egg()
     else:

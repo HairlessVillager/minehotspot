@@ -6,8 +6,6 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_PASSWORD: "123456"
-    networks:
-      - public
 
   scrapyd:
     image: scrapyd
@@ -16,8 +14,6 @@ services:
       - "6800:6800"
     expose:
       - "6800"
-    networks:
-      - public
 
   prefect:
     image: prefect
@@ -30,8 +26,8 @@ services:
       - database
     environment:
       PREFECT_API_DATABASE_CONNECTION_URL: "postgresql+asyncpg://postgres:123456@database:5432/prefect"
-    networks:
-      - public
+      PREFECT_SERVER_API_HOST: "0.0.0.0"
+      PREFECT_LOGGING_SERVER_LEVEL: "DEBUG"
 
   minehotspot:
     image: minehotspot
@@ -44,10 +40,6 @@ services:
       COOKIES_TEXT: "your_cookies"
       DATABASE_CONNECTION_URL: "postgresql+psycopg2://postgres:123456@database:5432/minehotspot"
       SCRAPYD_URL: "http://scrapyd:6800"
+      PREFECT_API_URL: "http://prefect:4200/api"
       DOCKER: "1"
-    networks:
-      - public
-
-networks:
-  public:
-    driver: bridge
+      WAIT_PREFECT_SECONDS: "5"
