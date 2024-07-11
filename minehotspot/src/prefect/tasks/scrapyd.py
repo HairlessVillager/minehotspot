@@ -120,22 +120,14 @@ def cancel_all_jobs():
     assert jobs_response.status_code == 200
     jobs = json.loads(jobs_response.text)
 
-    for running_job in jobs["running"]:
-        jobid = running_job["id"]
-        response = requests.post(f"{scrapyd_url}/cancel.json?project=minehotspot&jobid={jobid}")
-        result = json.loads(response.text)
-        logger.debug(f"{response.text=!r}")
-        if result["status"] != "ok":
-            msg = f"a running job cancel failed with status={result['status']}"
-            logger.error(msg)
-            raise ValueError(msg)
-
-    for pending_job in jobs["pending"]:
-        jobid = pending_job["id"]
-        response = requests.post(f"{scrapyd_url}/cancel.json?project=minehotspot&jobid={jobid}")
-        result = json.loads(response.text)
-        logger.debug(f"{response.text=!r}")
-        if result["status"] != "ok":
-            msg = f"a pending job cancel failed with status={result['status']}"
-            logger.error(msg)
-            raise ValueError(msg)
+    for job in [*jobs["running"], *jobs["pending"]]:
+        try:
+            logger.debug(f"try to cancel {job=}")
+            jobid = job["id"]
+            response = requests.post(f"{scrapyd_url}/cancel.json?project=minehotspot&jobid={jobid}")
+            result = json.loads(response.text)
+            logger.debug(f"{response.text=!r}")
+            if result["status"] != "ok":
+                raise ValueError("job cancel failed")
+        except Exception as e:
+            logger.error(e)
