@@ -115,4 +115,19 @@ def get_job_result(jobid: str, interval: int, retry: int):
 @task
 def cancel_all_jobs():
     """Cancel all jobs."""
-    raise NotImplementedError()
+    logger = get_run_logger()
+    jobs_response = requests.get(f"{scrapyd_url}/listjobs.json?project=minehotspot")
+    assert jobs_response.status_code == 200
+    jobs = json.loads(jobs_response.text)
+
+    for job in [*jobs["running"], *jobs["pending"]]:
+        try:
+            logger.debug(f"try to cancel {job=}")
+            jobid = job["id"]
+            response = requests.post(f"{scrapyd_url}/cancel.json?project=minehotspot&jobid={jobid}")
+            result = json.loads(response.text)
+            logger.debug(f"{response.text=!r}")
+            if result["status"] != "ok":
+                raise ValueError("job cancel failed")
+        except Exception as e:
+            logger.error(e)
