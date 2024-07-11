@@ -124,7 +124,11 @@ def cancel_all_jobs():
         try:
             logger.debug(f"try to cancel {job=}")
             jobid = job["id"]
-            response = requests.post(f"{scrapyd_url}/cancel.json?project=minehotspot&jobid={jobid}")
+            data = {
+                'project': 'minehotspot',
+                'job': jobid
+            }
+            response = requests.post(f"{scrapyd_url}/cancel.json", data=data)
             result = json.loads(response.text)
             logger.debug(f"{response.text=!r}")
             if result["status"] != "ok":
