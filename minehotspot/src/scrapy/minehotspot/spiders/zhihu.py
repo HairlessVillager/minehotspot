@@ -139,8 +139,8 @@ class ZhiHuQuestionSpider(scrapy.Spider):
         answer_num = float(response.xpath(r"//*[@id='ProfileMain']/div[1]/ul/li[2]/a/span/text()").get().replace(",", ""))
         pin_num = float(response.xpath(r"//*[@id='ProfileMain']/div[1]/ul/li[7]/a/span/text()").get().replace(",", ""))
         url_pre = response.url
-        answer_pages = ceil(answer_num / 10)
-        pin_pages = ceil(pin_num / 10)
+        answer_pages = ceil(answer_num / 20)
+        pin_pages = ceil(pin_num / 20)
         url_token = response.meta.get("url_token")
         print(f'answer_pages: {answer_pages}, pin_pages: {pin_pages}')
 
@@ -174,7 +174,7 @@ class ZhiHuQuestionSpider(scrapy.Spider):
             )
 
         item_pin = ZhihuPin(id=id, user=user,title=None,content=None,like_num=None,comment_num=None)
-        for i in range(1, answer_pages + 1):
+        for i in range(1, pin_pages + 1):
             # 破解x-zse-96
             api =f'/api/v4/v2/pins/{url_token}/moments?offset={(i-1)*20}&limit=20&includes=data%5B*%5D.upvoted_followees%2Cadmin_closed_comment'
             d_c0=self.cookies["d_c0"]
@@ -223,8 +223,8 @@ class ZhiHuQuestionSpider(scrapy.Spider):
             self.logger.debug("想法数据解析成功")
             j = json.loads(response.text)
             for data in j['data']:
-                title = data['content']['title']
-                content = data['content']['content']
+                title = data['content'][0]['title']
+                content = data['content'][0]['content']
                 like_num = data["like_count"]
                 comment_num = data["comment_count"]
                 yield replace(item, title=title, content=content, like_num=like_num, comment_num=comment_num)
