@@ -8,12 +8,12 @@ import requests
 import scrapy
 from minehotspot.items import ZhihuQuestion, ZhihuAnswer, ZhihuPin
 
-class ZhiHuQuestionSpider(scrapy.Spider):
-    name = "zhihu"
+class ZhiHuAnswerSpider(scrapy.Spider):
+    name = "zhihuanswer"
     allowed_domains = ["www.zhihu.com"]
 
     def __init__(self, pid: int, cookies_text: str = None, *args, **kwargs):
-        super(ZhiHuQuestionSpider, self).__init__(*args, **kwargs)
+        super(ZhiHuAnswerSpider, self).__init__(*args, **kwargs)
         self.logger.debug(f"{pid=}, {cookies_text=}")
         self.pid = pid
         self.headers = {
@@ -24,9 +24,6 @@ class ZhiHuQuestionSpider(scrapy.Spider):
             'Content-Type': 'application/json',
             # 可以添加更多你需要的请求头
         }
-        cookies_text = """
-        _zap=219c07c1-f5f7-4ea9-9e56-0968f949cdcd; d_c0=AQBSaJgk5hiPTs3SaGhseVYL8t7skrpEWxs=|1720541492; __snaker__id=ifWc7mfWd3M1kab8; captcha_ticket_v2=2|1:0|10:1720541502|17:captcha_ticket_v2|728:eyJ2YWxpZGF0ZSI6IkNOMzFfblFXbWxvdzBCVW9HRHlsa19fME40OEFxZ3JzOWFSVnMwd2dNSlJqRkdaUVFHVVJzWElLbXdiQ19NMjVwRGRINHhja212XzlBVTAyMTRVU0lLRWtoUS4wZEhQckFQeWRfR2NlZ0g2YUtNUnFlRDBBMVFDNVdpaXhJanlkKmFXaS40blFOa1doSmJkUWx0ck56UDhXMGxIVnBYUTNNSWk4VXVqM2cqMGJsdHpJSEJtVV9teEtmd1EqSWQqKjlTanVPMHFsNHo2ZWp0amJWMHpITUd1U2Njb3o2KnZweW9nVDFiRUp6cWt4elR1eWNSb3daRldPY1V2cHlOUTI4SExSb0dDT1kxMmlFdDlnTnZudVhMTGJtbHN6RmJaamhhODVsdXd4R3MyS25yS0hTS2lOeVFuemFkVDNMOWM0QypjbTlzWS5mWS5xSC51TUFNaUlmck90dyo2TUFNUFg1VE1mU0tTNm13NkloZzYzUDB2VEd6T212S0hJZC54ZlM5MTJ4dHE4eGp3U20wSGt2bGJMbm5GWTZWX2NocXpWOTAzNGswVUxCRGVWNHBFdnAqZ18xbEZ3aXdjKmlfam9uajhFOHFReVVTektBOHJ6MjBqQWtVczYuNjBiellyMVlzUVBTQkQ2bFRCSE1IWUtWb3g0VVZvSGdjWVRfbHFyZzVVUmxpb0ZUOVg3N192X2lfMSJ9|fef14ba89958bfc0780f1c8f47995925497d06b5f11a4e94284851898bd6b14a; z_c0=2|1:0|10:1720541520|4:z_c0|92:Mi4xTjJQUFFRQUFBQUFCQUZKb21DVG1HQ1lBQUFCZ0FsVk5VSzk2WndDWUZMNjhqSVAxMms0a3J5RlhQNWdvTGFiLU9B|92c7fa59edf6e27390fd57fd0699f25d31ec33ca72afb2df916c41db85af018e; q_c1=b7eeeeeef80d487db51b62c6ed30e426|1720541520000|1720541520000; __zse_ck=001_CjwbAUUe31Ige4Vs2UZGKyg14t1EuCOi1dwE+yjFAPK2PCRARc1g1Ck5QjcDdw=myqKFbM+odh4GuHqrl38kOVWrezR6U+v=kG/aQ4pUAZc7+ZObQGkI=h9+PWpte4Ev; _xsrf=bIRHdmI55xWyEmsxKGBinRNBKfB7KemK; gdxidpyhxdE=97H%2Bx%2Fky8kgkWxOnSqv9VB3OdqJaG9MBP9bk4YkhUOlmzB%2BngjHaKu5uVrPJi3IsVtJlipixGg%2BWX4vN8hfi%2Fvca8A4S1YXw7583v8Q6HoDOGEcoe9rPhA6%2B8Zu2rSpSrI9dAw2vki0QL5YIzxbwM2Qmf3pNGZaEdnf1eO0Tksg4Oa3D%3A1720545727407; tst=r; Hm_lvt_98beee57fd2ef70ccdd5ca52b9740c49=1720619343,1720626802,1720660835,1720676321; HMACCOUNT=47A108C0894DBC65; SESSIONID=OKanRPPuxLFeVBfQYjOVjPDtANvYdIHcvJVdYfINTRx; JOID=VlwcAUnSGUtb2j0kNNXv179JH8QhnV8hNY5teUqsVQA1jHlCaDtwzzvcMCI_bnzuI6m8H_HnU3051AlhuTE52fs=; osd=W1wVCkPfGUJQ0DAkPd7l2r9AFM4snVYqP4NtcEGmWAA8h3NPaDJ7xTbcOSk1Y3znKKOxH_jsWXA53QJrtDEw0vE=; BAIDU_SSP_lcr=https://cn.bing.com/; BEC=b0eab4e8c2499716509071e260d20835; Hm_lpvt_98beee57fd2ef70ccdd5ca52b9740c49=1720676344    
-        """
         self.cookies = {}
         for item in cookies_text.strip().split(";"):
             k, _, v = item.partition("=")
@@ -50,12 +47,6 @@ class ZhiHuQuestionSpider(scrapy.Spider):
         script_text = response.xpath('//script[@id="js-initialData"]/text()').get()
         json_data = json.loads(script_text.strip().replace('console.log(\'', '').replace('\');', ''))
 
-        # 问题的解析
-        item_q = ZhihuQuestion(None,None,None)
-        id= json_data["initialState"]["entities"]["questions"][f'{self.pid}']["id"]
-        title = json_data["initialState"]["entities"]["questions"][f'{self.pid}']["title"]
-        des= json_data["initialState"]["entities"]["questions"][f'{self.pid}']["detail"]
-        yield replace(item_q,id=id,title=title,des=des)
 
         # 初始加载的5条回答
         item_a = ZhihuAnswer(None,None,None,None,None)
@@ -66,19 +57,6 @@ class ZhiHuQuestionSpider(scrapy.Spider):
             praise_num = json_data["initialState"]["entities"]["answers"][answer]["voteupCount"]
             comment_num= json_data["initialState"]["entities"]["answers"][answer]["commentCount"]
             url_token = json_data["initialState"]["entities"]["answers"][answer]["author"]["urlToken"]
-            # 处理这个人的所有回答和想法
-            if url_token!="":
-                yield scrapy.Request(
-                    url=f'https://www.zhihu.com/people/{url_token}',
-                    callback=self.parse_people_answers_and_pins,
-                    headers=self.headers,
-                    cookies=self.cookies,
-                    meta={
-                        'url_token': url_token,
-
-
-                    }
-                )
             yield replace(item_a,id=id,user=user,reply_text=reply_text,praise_num=praise_num,comment_num=comment_num)
 
         # 处理后面的评论，动态加载的
@@ -105,19 +83,6 @@ class ZhiHuQuestionSpider(scrapy.Spider):
                 reply_text = answer["target"]["excerpt"]
                 praise_num = answer["target"]["voteup_count"]
                 comment_num = answer["target"]["comment_count"]
-                url_token = answer["target"]["author"]["url_token"]
-                # 处理这个人的所有回答和想法
-                if url_token!="":
-                    yield scrapy.Request(
-                        url=f'https://www.zhihu.com/people/{url_token}',
-                        callback=self.parse_people_answers_and_pins,
-                        dont_filter=True,  # TODO: remove duplication filter
-                        headers=self.headers,
-                        cookies=self.cookies,
-                        meta={
-                            'url_token': url_token,
-                        }
-                    )
 
                 yield replace(item_a,id=id,user=user,reply_text=reply_text,praise_num=praise_num,comment_num=comment_num)
 
@@ -134,15 +99,51 @@ class ZhiHuQuestionSpider(scrapy.Spider):
         else:
             self.logger.debug(f"Answer list返回错误：{response.status}")
 
-    # 个人主页的问题和想法
-    def parse_people_answers_and_pins(self, response):
+
+
+
+
+
+class ZhiHuPeopleAnswerSpider(scrapy.Spider):
+    name = "zhihupeopleanswer"
+    allowed_domains = ["www.zhihu.com"]
+
+    def __init__(self, url_token: str, cookies_text: str = None, *args, **kwargs):
+        super(ZhiHuPeopleAnswerSpider, self).__init__(*args, **kwargs)
+        self.logger.debug(f"{url_token=}, {cookies_text=}")
+        self.url_token = url_token
+        self.headers = {
+            'X-Zse-93': '101_3_3.0',
+            'X-Zse-96': '',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            # 可以添加更多你需要的请求头
+        }
+        self.cookies = {}
+        for item in cookies_text.strip().split(";"):
+            k, _, v = item.partition("=")
+            k = k.strip()
+            v = v.strip()
+            self.cookies[k] = v
+        with open(r'spiders/script.js', 'r', encoding='utf-8') as f:
+            self.ctx1 = execjs.compile(f.read())
+        self.logger.debug(f"{self.cookies=}")
+
+    def start_requests(self):
+        yield scrapy.Request(
+            url=f"https://www.zhihu.com/people/{self.url_token}",
+            callback=self.parse_people_answers,
+            cookies=self.cookies,
+            headers=self.headers
+        )
+
+    def parse_people_answers(self, response):
         answer_num = float(response.xpath(r"//*[@id='ProfileMain']/div[1]/ul/li[2]/a/span/text()").get().replace(",", ""))
-        pin_num = float(response.xpath(r"//*[@id='ProfileMain']/div[1]/ul/li[7]/a/span/text()").get().replace(",", ""))
         url_pre = response.url
         answer_pages = ceil(answer_num / 20)
-        pin_pages = ceil(pin_num / 20)
-        url_token = response.meta.get("url_token")
-        print(f'answer_pages: {answer_pages}, pin_pages: {pin_pages}')
+        url_token = self.url_token
+        print(f'answer_pages: {answer_pages}')
 
         # 个人的id与name
         json_data_author = json.loads(response.xpath("//script[@id='js-initialData']/text()").get())
@@ -173,6 +174,67 @@ class ZhiHuQuestionSpider(scrapy.Spider):
                 cb_kwargs={"item":item_answer}
             )
 
+
+    def parse_people_answer(self, response, item: ZhihuAnswer):
+        if response.status == 200:
+            self.logger.debug("回答json数据解析成功")
+            j = json.loads(response.text)
+            for data in j['data']:
+                reply_text = data["excerpt"]
+                praise_num = data["voteup_count"]
+                comment_num = data["comment_count"]
+                yield replace(item, reply_text=reply_text, praise_num=praise_num, comment_num=comment_num)
+
+        else:
+            self.logger.debug("知乎个人主页问题请求失败")
+
+
+class ZhiHuPeoplePinSpider(scrapy.Spider):
+    name = 'zhihupeoplepin'
+    allowed_domains = ['www.zhihu.com']
+
+    def __init__(self, url_token: str, cookies_text: str = None, *args, **kwargs):
+        super(ZhiHuPeoplePinSpider, self).__init__(*args, **kwargs)
+        self.logger.debug(f"{url_token=}, {cookies_text=}")
+        self.url_token = url_token
+        self.headers = {
+            'X-Zse-93': '101_3_3.0',
+            'X-Zse-96': '',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+            # 可以添加更多你需要的请求头
+        }
+        self.cookies = {}
+        for item in cookies_text.strip().split(";"):
+            k, _, v = item.partition("=")
+            k = k.strip()
+            v = v.strip()
+            self.cookies[k] = v
+        with open(r'spiders/script.js', 'r', encoding='utf-8') as f:
+            self.ctx1 = execjs.compile(f.read())
+        self.logger.debug(f"{self.cookies=}")
+
+    def start_requests(self):
+        yield scrapy.Request(
+            url=f"https://www.zhihu.com/people/{self.url_token}",
+            callback=self.parse_people_pins,
+            cookies=self.cookies,
+            headers=self.headers
+        )
+
+    def parse_people_pins(self, response):
+        pin_num = float(response.xpath(r"//*[@id='ProfileMain']/div[1]/ul/li[7]/a/span/text()").get().replace(",", ""))
+        url_pre = response.url
+        pin_pages = ceil(pin_num / 20)
+        url_token = self.url_token
+        print(f'pin_pages: {pin_pages}')
+
+        # 个人的id与name
+        json_data_author = json.loads(response.xpath("//script[@id='js-initialData']/text()").get())
+        id = json_data_author["initialState"]["entities"]["users"][url_token]["id"]
+        user = json_data_author["initialState"]["entities"]["users"][url_token]["name"]
+
         item_pin = ZhihuPin(id=id, user=user,title=None,content=None,like_num=None,comment_num=None)
         for i in range(1, pin_pages + 1):
             # 破解x-zse-96
@@ -197,27 +259,6 @@ class ZhiHuQuestionSpider(scrapy.Spider):
                 cb_kwargs={"item":item_pin}
             )
 
-
-
-    # 个人主页问题
-    def parse_people_answer(self, response,item:ZhihuAnswer):
-        if response.status==200:
-            self.logger.debug("回答json数据解析成功")
-            j=json.loads(response.text)
-            for data in j['data']:
-                reply_text=data["excerpt"]
-                praise_num=data["voteup_count"]
-                comment_num=data["comment_count"]
-                yield replace(item,reply_text=reply_text,praise_num=praise_num,comment_num=comment_num)
-
-        else:
-            self.logger.debug("知乎个人主页问题请求失败")
-
-
-
-
-
-    # 个人主页想法第一页
     def parse_people_pin(self, response,item:ZhihuPin):
         if response.status == 200:
             self.logger.debug("想法数据解析成功")
