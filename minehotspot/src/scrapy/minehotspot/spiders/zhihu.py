@@ -100,10 +100,6 @@ class ZhiHuAnswerSpider(scrapy.Spider):
             self.logger.debug(f"Answer list返回错误：{response.status}")
 
 
-
-
-
-
 class ZhiHuPeopleAnswerSpider(scrapy.Spider):
     name = "zhihupeopleanswer"
     allowed_domains = ["www.zhihu.com"]
@@ -173,7 +169,6 @@ class ZhiHuPeopleAnswerSpider(scrapy.Spider):
                 callback=self.parse_people_answer,
                 cb_kwargs={"item":item_answer}
             )
-
 
     def parse_people_answer(self, response, item: ZhihuAnswer):
         if response.status == 200:
@@ -269,6 +264,5 @@ class ZhiHuPeoplePinSpider(scrapy.Spider):
                 like_num = data["like_count"]
                 comment_num = data["comment_count"]
                 yield replace(item, title=title, content=content, like_num=like_num, comment_num=comment_num)
-
         else:
             self.logger.debug("知乎个人主页想法请求失败")
