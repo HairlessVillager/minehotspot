@@ -1,3 +1,4 @@
 scrapy==2.11.2
 scrapyd==1.4.3
 fake_useragent==1.5.1
+PyExecJS==1.5.1

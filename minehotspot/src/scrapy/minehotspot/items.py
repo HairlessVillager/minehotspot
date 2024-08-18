@@ -22,3 +22,22 @@ class TiebaTotalComment:
     topic: str
     time: int
     total: int
+
+
+@dataclass
+class ZhihuAnswer:
+    id: int
+    user: str
+    reply_text: str
+    praise_num: int
+    comment_num: int
+
+
+@dataclass
+class ZhihuPin:
+    id: int
+    user: str
+    title: str
+    content: str
+    like_num: int
+    comment_num: int
