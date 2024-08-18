@@ -5,7 +5,7 @@ from math import ceil
 
 import execjs
 import scrapy
-from minehotspot.items import ZhihuQuestion, ZhihuAnswer, ZhihuPin
+from minehotspot.items import ZhihuAnswer, ZhihuPin
 
 
 class ZhiHuAnswerSpider(scrapy.Spider):

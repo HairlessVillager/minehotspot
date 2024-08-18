@@ -25,13 +25,6 @@ class TiebaTotalComment:
 
 
 @dataclass
-class ZhihuQuestion:
-    id: str
-    title: str
-    des: str
-
-
-@dataclass
 class ZhihuAnswer:
     id: int
     user: str
