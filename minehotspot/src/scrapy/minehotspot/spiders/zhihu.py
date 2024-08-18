@@ -1,3 +1,9 @@
+"""
+WARNING: A Node.js environment is required. Install Node.js, or get an error like `execjs._exceptions.ProgramError`.
+
+See: https://www.cnblogs.com/xkdn/p/17186941.html
+"""
+
 import hashlib
 import json
 from dataclasses import replace
@@ -9,6 +15,16 @@ from minehotspot.items import ZhihuAnswer, ZhihuPin
 
 
 class ZhiHuAnswerSpider(scrapy.Spider):
+    """Crawl answers from question page.
+
+    url:
+        https://www.zhihu.com/question/612325996
+    command:
+        scrapy crawl zhihuanswer -a pid=612325996 -a cookies_text=<your_cookies>
+    item:
+        ZhihuAnswer
+    """
+
     name = "zhihuanswer"
     allowed_domains = ["www.zhihu.com"]
 
@@ -30,7 +46,7 @@ class ZhiHuAnswerSpider(scrapy.Spider):
             k = k.strip()
             v = v.strip()
             self.cookies[k] = v
-        with open(r"spiders/script.js", "r", encoding="utf-8") as f:
+        with open(r"script.js", "r", encoding="utf-8") as f:
             self.ctx1 = execjs.compile(f.read())
         self.logger.debug(f"{self.cookies=}")
 
@@ -125,6 +141,16 @@ class ZhiHuAnswerSpider(scrapy.Spider):
 
 
 class ZhiHuPeopleAnswerSpider(scrapy.Spider):
+    """Crawl answers from personal page.
+
+    url:
+        https://www.zhihu.com/people/xiao-ming-15-27
+    command:
+        scrapy crawl zhihupeopleanswer -a url_token=xiao-ming-15-27 -a cookies_text=<your_cookies>
+    item:
+        ZhihuAnswer
+    """
+
     name = "zhihupeopleanswer"
     allowed_domains = ["www.zhihu.com"]
 
@@ -146,7 +172,7 @@ class ZhiHuPeopleAnswerSpider(scrapy.Spider):
             k = k.strip()
             v = v.strip()
             self.cookies[k] = v
-        with open(r"spiders/script.js", "r", encoding="utf-8") as f:
+        with open(r"script.js", "r", encoding="utf-8") as f:
             self.ctx1 = execjs.compile(f.read())
         self.logger.debug(f"{self.cookies=}")
 
@@ -167,7 +193,7 @@ class ZhiHuPeopleAnswerSpider(scrapy.Spider):
         url_pre = response.url
         answer_pages = ceil(answer_num / 20)
         url_token = self.url_token
-        print(f"answer_pages: {answer_pages}")
+        self.logger.debug(f"answer_pages: {answer_pages}")
 
         # 个人的id与name
         json_data_author = json.loads(
@@ -224,6 +250,16 @@ class ZhiHuPeopleAnswerSpider(scrapy.Spider):
 
 
 class ZhiHuPeoplePinSpider(scrapy.Spider):
+    """Crawl pins from personal page.
+
+    url:
+        https://www.zhihu.com/people/xiao-ming-15-27/pins
+    command:
+        scrapy crawl zhihupeopleanswer -a url_token=xiao-ming-15-27 -a cookies_text=<your_cookies>
+    item:
+        ZhihuPin
+    """
+
     name = "zhihupeoplepin"
     allowed_domains = ["www.zhihu.com"]
 
@@ -245,7 +281,7 @@ class ZhiHuPeoplePinSpider(scrapy.Spider):
             k = k.strip()
             v = v.strip()
             self.cookies[k] = v
-        with open(r"spiders/script.js", "r", encoding="utf-8") as f:
+        with open(r"script.js", "r", encoding="utf-8") as f:
             self.ctx1 = execjs.compile(f.read())
         self.logger.debug(f"{self.cookies=}")
 
@@ -266,7 +302,7 @@ class ZhiHuPeoplePinSpider(scrapy.Spider):
         url_pre = response.url
         pin_pages = ceil(pin_num / 20)
         url_token = self.url_token
-        print(f"pin_pages: {pin_pages}")
+        self.logger.debug(f"pin_pages: {pin_pages}")
 
         # 个人的id与name
         json_data_author = json.loads(
